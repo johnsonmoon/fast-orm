@@ -136,6 +136,24 @@ public class JdbcConnector {
 		return result;
 	}
 
+	/**
+	 * Execute sql command.
+	 *
+	 * @param sql sql sentence
+	 * @return true if the first result is a ResultSet object; false if it is an update count or there are no results
+	 */
+	public boolean execute(String sql) {
+		try {
+			connection = getConnection();
+			statement = connection.createStatement();
+			return statement.execute(sql);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage(), e);
+		} finally {
+			close();
+		}
+	}
+
 	private Connection getConnection() {
 		Connection conn;
 		try {
