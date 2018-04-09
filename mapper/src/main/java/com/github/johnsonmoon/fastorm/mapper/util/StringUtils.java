@@ -39,4 +39,20 @@ public class StringUtils {
 		String field = name.substring(name.indexOf("(") + 1, name.lastIndexOf(")")).trim();
 		return String.format(sureName, table) + "(" + String.format(sureName, field) + ")";
 	}
+
+	/**
+	 * Target str contains any search str.
+	 *
+	 * @param target target str
+	 * @param search search str array
+	 * @return true/false
+	 */
+	public static boolean containsAny(String target, String... search) {
+		for (String s : search) {
+			if (target.contains(s)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

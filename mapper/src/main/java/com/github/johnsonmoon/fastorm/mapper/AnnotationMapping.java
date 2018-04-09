@@ -3,14 +3,15 @@ package com.github.johnsonmoon.fastorm.mapper;
 import com.github.johnsonmoon.fastorm.core.annotation.Column;
 import com.github.johnsonmoon.fastorm.core.annotation.ForeignKey;
 import com.github.johnsonmoon.fastorm.core.annotation.Table;
+import com.github.johnsonmoon.fastorm.core.sql.Insert;
+import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
 import com.github.johnsonmoon.fastorm.mapper.common.ColumnMetaInfo;
 import com.github.johnsonmoon.fastorm.mapper.common.MapperException;
 import com.github.johnsonmoon.fastorm.mapper.common.TableMetaInfo;
-import com.github.johnsonmoon.fastorm.mapper.util.AnnotationUtils;
-import com.github.johnsonmoon.fastorm.mapper.util.ReflectionUtils;
-import com.github.johnsonmoon.fastorm.mapper.util.StringUtils;
+import com.github.johnsonmoon.fastorm.mapper.util.*;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class AnnotationMapping implements Mapping {
 		} else {
 			TableMetaInfo tableMetaInfo = new TableMetaInfo();
 			Table table = AnnotationUtils.getAnnotationTable(clazz);
+			tableMetaInfo.setClassName(typeName);
 			tableMetaInfo.setTableName(table.name());
 			tableMetaInfo.setTableSettings(table.settings());
 			for (Field field : ReflectionUtils.getFieldsUnStaticUnFinal(clazz)) {
@@ -55,6 +57,8 @@ public class AnnotationMapping implements Mapping {
 					continue;
 				}
 				ColumnMetaInfo columnMetaInfo = new ColumnMetaInfo();
+				columnMetaInfo.setFieldName(field.getName());
+				columnMetaInfo.setFieldType(ReflectionUtils.getFieldTypeNameEntire(field));
 				Column column = AnnotationUtils.getAnnotationColumn(field);
 				columnMetaInfo.setColumnName(column.name());
 				columnMetaInfo.setType(column.type());
@@ -109,7 +113,9 @@ public class AnnotationMapping implements Mapping {
 				builder.append(" ");
 				builder.append(columnMetaInfo.getDefaultValue());
 				builder.append(" ");
-			} else {
+			}
+			if (columnMetaInfo.isAutoIncrement()) {
+				builder.append(ColumnMetaInfo.AUTO_INCREMENT);
 				builder.append(" ");
 			}
 			builder.append(", \r\n");
@@ -171,13 +177,66 @@ public class AnnotationMapping implements Mapping {
 	}
 
 	@Override
-	public <T> String createIndex(Class<T> clazz) {
-		return null;
+	public <T> List<String> createIndex(Class<T> clazz) {
+		TableMetaInfo tableMetaInfo = getTableMetaInfo(clazz);
+		if (tableMetaInfo == null)
+			throw new MapperException(
+					String.format("Unsupported operation: can not generate table meta info from class %s.", clazz.getName()));
+		List<String> sentenceList = new ArrayList<>();
+		for (ColumnMetaInfo columnMetaInfo : tableMetaInfo.getColumnMetaInfoList()) {
+			if (columnMetaInfo.isIndexedColumn()) {
+				sentenceList.add("CREATE INDEX index_" + columnMetaInfo.getColumnName()
+						+ " ON " + StringUtils.getSureName(tableMetaInfo.getTableName())
+						+ " (" + StringUtils.getSureName(columnMetaInfo.getColumnName()) + ");");
+			}
+		}
+		return sentenceList;
 	}
 
 	@Override
 	public <T> String insert(T t, Class<T> clazz) {
-		return null;
+		TableMetaInfo tableMetaInfo = getTableMetaInfo(clazz);
+		if (tableMetaInfo == null)
+			throw new MapperException(
+					String.format("Unsupported operation: can not generate table meta info from class %s.", clazz.getName()));
+		List<String> columns = new ArrayList<>();
+		List<Object> values = new ArrayList<>();
+		for (ColumnMetaInfo columnMetaInfo : tableMetaInfo.getColumnMetaInfoList()) {
+			if (columnMetaInfo.isIdColumn()) {
+				if (columnMetaInfo.isAutoIncrement()) {
+					continue;
+				}
+				Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
+				if (value == null) {
+					value = RandomUtils.getRandomNumberString(ValueUtils.getLengthOfColumnType(columnMetaInfo.getType()));
+				}
+				columns.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
+				values.add(value);
+			} else if (columnMetaInfo.isNotNull()) {
+				Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
+				if (value == null)
+					throw new MapperException(
+							String.format("Unsupported operation: field %s value must not be null.", columnMetaInfo.getFieldName()));
+				columns.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
+				values.add(value);
+			} else if (!columnMetaInfo.isNotNull() && !columnMetaInfo.getDefaultValue().isEmpty()) {
+				Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
+				if (value == null)
+					value = ValueUtils.upToObject(columnMetaInfo.getDefaultValue(),
+							ReflectionUtils.getClassByName(columnMetaInfo.getFieldType()));
+				columns.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
+				values.add(value);
+			} else {
+				Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
+				if (value == null)
+					continue;
+				columns.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
+				values.add(value);
+			}
+		}
+		return Insert.insertInto(StringUtils.getSureName(tableMetaInfo.getTableName()))
+				.fields(CollectionUtils.strListToArray(columns))
+				.values(CollectionUtils.objListToArray(values)).getSql();
 	}
 
 	@Override

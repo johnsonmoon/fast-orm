@@ -11,9 +11,11 @@ public class StudentOrder {
 	@PrimaryKey
 	@Column(name = "id", type = "varchar(20)", notNull = true)
 	private String id;
+	@Indexed
 	@ForeignKey(references = "student(id)")
 	@Column(name = "student_id", type = "varchar(20)", notNull = true)
 	private String studentId;
+	@Indexed
 	@ForeignKey(references = "order(id)")
 	@Column(name = "order_id", type = "varchar(20)", notNull = true)
 	private String orderId;

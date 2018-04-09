@@ -1,9 +1,6 @@
 package com.github.johnsonmoon.fastorm.entity;
 
-import com.github.johnsonmoon.fastorm.core.annotation.Column;
-import com.github.johnsonmoon.fastorm.core.annotation.Id;
-import com.github.johnsonmoon.fastorm.core.annotation.PrimaryKey;
-import com.github.johnsonmoon.fastorm.core.annotation.Table;
+import com.github.johnsonmoon.fastorm.core.annotation.*;
 
 /**
  * Created by johnsonmoon at 2018/4/8 17:45.
@@ -14,8 +11,10 @@ public class Student {
 	@PrimaryKey
 	@Column(name = "id", type = "varchar(20)", notNull = true)
 	private String id;
+	@Indexed
 	@Column(name = "name", notNull = true)
 	private String name;
+	@Indexed
 	@Column(name = "email")
 	private String email;
 	@Column(name = "phone", type = "varchar(15)")

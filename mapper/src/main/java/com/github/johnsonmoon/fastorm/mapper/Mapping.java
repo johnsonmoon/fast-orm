@@ -1,5 +1,7 @@
 package com.github.johnsonmoon.fastorm.mapper;
 
+import java.util.List;
+
 /**
  * Object-relation mapping functions define.
  * <p>
@@ -18,9 +20,9 @@ public interface Mapping {
 	 * Generate create index sentence.
 	 *
 	 * @param clazz object type
-	 * @return create index sentence
+	 * @return create index sentence list
 	 */
-	<T> String createIndex(Class<T> clazz);
+	<T> List<String> createIndex(Class<T> clazz);
 
 	/**
 	 * Generate insert sql sentence.

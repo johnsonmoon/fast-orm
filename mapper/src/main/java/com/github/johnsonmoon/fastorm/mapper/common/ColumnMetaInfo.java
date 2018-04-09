@@ -12,9 +12,11 @@ public class ColumnMetaInfo {
 	public static final String FOREIGN_KEY = "FOREIGN KEY";
 	public static final String REFERENCES = "REFERENCES";
 
+	private String fieldName;//java class field name
+	private String fieldType;//java class type of field(entire name)
 	private boolean idColumn = false;
 	private boolean indexedColumn = false;
-	private String columnName = "";
+	private String columnName = "";//database column name
 	private String type = "";
 	private boolean notNull = false;
 	private String defaultValue = "";
@@ -26,9 +28,33 @@ public class ColumnMetaInfo {
 	public ColumnMetaInfo() {
 	}
 
-	public ColumnMetaInfo(String columnName, String type) {
+	public ColumnMetaInfo(String fieldName) {
+		this.fieldName = fieldName;
+	}
+
+	public ColumnMetaInfo(String fieldName, String columnName, String type) {
+		this.fieldName = fieldName;
 		this.columnName = columnName;
 		this.type = type;
+	}
+
+	/**
+	 * java class field name
+	 */
+	public String getFieldName() {
+		return fieldName;
+	}
+
+	public void setFieldName(String fieldName) {
+		this.fieldName = fieldName;
+	}
+
+	public String getFieldType() {
+		return fieldType;
+	}
+
+	public void setFieldType(String fieldType) {
+		this.fieldType = fieldType;
 	}
 
 	public boolean isIdColumn() {
@@ -114,10 +140,14 @@ public class ColumnMetaInfo {
 	@Override
 	public String toString() {
 		return "ColumnMetaInfo{" +
-				"columnName='" + columnName + '\'' +
+				"fieldName='" + fieldName + '\'' +
+				", idColumn=" + idColumn +
+				", indexedColumn=" + indexedColumn +
+				", columnName='" + columnName + '\'' +
 				", type='" + type + '\'' +
 				", notNull=" + notNull +
 				", defaultValue='" + defaultValue + '\'' +
+				", autoIncrement=" + autoIncrement +
 				", primaryKey=" + primaryKey +
 				", foreignKey=" + foreignKey +
 				", foreignKeyReferences='" + foreignKeyReferences + '\'' +

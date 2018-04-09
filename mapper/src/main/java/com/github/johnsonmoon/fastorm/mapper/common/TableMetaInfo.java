@@ -7,7 +7,8 @@ import java.util.List;
  * Created by johnsonmoon at 2018/4/8 14:06.
  */
 public class TableMetaInfo {
-	private String tableName;
+	private String className;//java class name (entire)
+	private String tableName;//database table name
 	private String tableSettings;
 	private List<ColumnMetaInfo> columnMetaInfoList;
 
@@ -27,6 +28,14 @@ public class TableMetaInfo {
 	public TableMetaInfo(String tableName, List<ColumnMetaInfo> columnMetaInfoList) {
 		this.tableName = tableName;
 		this.columnMetaInfoList = columnMetaInfoList;
+	}
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
 	}
 
 	public String getTableName() {
@@ -69,7 +78,8 @@ public class TableMetaInfo {
 	@Override
 	public String toString() {
 		return "TableMetaInfo{" +
-				"tableName='" + tableName + '\'' +
+				"className='" + className + '\'' +
+				", tableName='" + tableName + '\'' +
 				", tableSettings='" + tableSettings + '\'' +
 				", columnMetaInfoList=" + columnMetaInfoList +
 				'}';

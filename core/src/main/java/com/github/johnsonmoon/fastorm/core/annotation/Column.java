@@ -52,7 +52,7 @@ public @interface Column {
 	boolean notNull() default false;
 
 	/**
-	 * column default value. default value is "NULL", means set column value NULL while insert field value is null.
+	 * column default value. default value is "".
 	 * <p>
 	 * <pre>
 	 *     {@link Column#notNull()}
@@ -61,7 +61,7 @@ public @interface Column {
 	 *
 	 * @return String
 	 */
-	String defaultValue() default "NULL";
+	String defaultValue() default "";
 
 	/**
 	 * column value is able to increase automatically. default value is false.

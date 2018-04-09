@@ -1,11 +1,15 @@
 package com.github.johnsonmoon.fastorm.mapper;
 
 import com.github.johnsonmoon.fastorm.core.common.JdbcConnector;
+import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
 import com.github.johnsonmoon.fastorm.entity.Order;
 import com.github.johnsonmoon.fastorm.entity.Student;
 import com.github.johnsonmoon.fastorm.entity.StudentOrder;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by johnsonmoon at 2018/4/8 17:44.
@@ -34,5 +38,47 @@ public class AnnotationMapperTest {
 		System.out.println(mapping.createTable(StudentOrder.class));
 		System.out.println(JdbcConnector.getInstance().execute(mapping.createTable(StudentOrder.class)));
 		System.out.println("\r\n\r\n");
+	}
+
+	@Test
+	public void testCreateIndex() {
+		Mapping mapping = new AnnotationMapping();
+		List<String> indexes = new ArrayList<>();
+		indexes.addAll(mapping.createIndex(Student.class));
+		indexes.addAll(mapping.createIndex(Order.class));
+		indexes.addAll(mapping.createIndex(StudentOrder.class));
+		indexes.forEach(System.out::println);
+		indexes.forEach(JdbcConnector.getInstance()::execute);
+	}
+
+	@Test
+	public void testInsert() {
+		Mapping mapping = new AnnotationMapping();
+		for (int i = 0; i < 10; i++) {
+			Student student = new Student();
+			student.setId(RandomUtils.getRandomString(20));
+			student.setName("johnsonmoon" + RandomUtils.getRandomNumberString(5));
+			student.setEmail(student.getName() + "@123.com");
+			student.setPhone("123123456");
+			student.setAddress(RandomUtils.getRandomString(50));
+			String sql = mapping.insert(student, Student.class);
+			System.out.println(sql);
+			System.out.println(JdbcConnector.getInstance().update(sql));
+
+			Order order = new Order();
+			order.setId(RandomUtils.getRandomString(20));
+			order.setReceiver("Johnsonmoon" + RandomUtils.getRandomNumberString(2));
+			order.setAddress("johnsonmoonAddress" + RandomUtils.getRandomString(5));
+			String sql2 = mapping.insert(order, Order.class);
+			System.out.println(sql2);
+			System.out.println(JdbcConnector.getInstance().update(sql2));
+
+			StudentOrder studentOrder = new StudentOrder();
+			studentOrder.setStudentId(student.getId());
+			studentOrder.setOrderId(order.getId());
+			String sql3 = mapping.insert(studentOrder, StudentOrder.class);
+			System.out.println(sql3);
+			System.out.println(JdbcConnector.getInstance().update(sql3));
+		}
 	}
 }
