@@ -1,6 +1,6 @@
 package com.github.johnsonmoon.fastorm.mapper;
 
-import com.github.johnsonmoon.fastorm.mapper.common.TableMetaInfo;
+import com.github.johnsonmoon.fastorm.mapper.meta.TableMetaInfo;
 
 import java.util.List;
 

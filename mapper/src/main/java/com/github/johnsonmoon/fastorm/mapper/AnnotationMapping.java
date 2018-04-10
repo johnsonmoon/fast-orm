@@ -7,10 +7,10 @@ import com.github.johnsonmoon.fastorm.core.sql.Criteria;
 import com.github.johnsonmoon.fastorm.core.sql.Insert;
 import com.github.johnsonmoon.fastorm.core.sql.Query;
 import com.github.johnsonmoon.fastorm.core.sql.Update;
-import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
-import com.github.johnsonmoon.fastorm.mapper.common.ColumnMetaInfo;
+import com.github.johnsonmoon.fastorm.mapper.util.RandomUtils;
+import com.github.johnsonmoon.fastorm.mapper.meta.ColumnMetaInfo;
 import com.github.johnsonmoon.fastorm.mapper.common.MapperException;
-import com.github.johnsonmoon.fastorm.mapper.common.TableMetaInfo;
+import com.github.johnsonmoon.fastorm.mapper.meta.TableMetaInfo;
 import com.github.johnsonmoon.fastorm.mapper.util.*;
 
 import java.lang.reflect.Field;

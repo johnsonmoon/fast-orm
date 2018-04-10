@@ -1,7 +1,7 @@
 package com.github.johnsonmoon.fastorm.mapper;
 
 import com.github.johnsonmoon.fastorm.core.common.JdbcConnector;
-import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
+import com.github.johnsonmoon.fastorm.mapper.util.RandomUtils;
 import com.github.johnsonmoon.fastorm.entity.Order;
 import com.github.johnsonmoon.fastorm.entity.Student;
 import com.github.johnsonmoon.fastorm.entity.StudentOrder;

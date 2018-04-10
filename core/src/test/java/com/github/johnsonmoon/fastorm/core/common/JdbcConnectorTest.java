@@ -3,7 +3,6 @@ package com.github.johnsonmoon.fastorm.core.common;
 import com.github.johnsonmoon.fastorm.core.sql.Criteria;
 import com.github.johnsonmoon.fastorm.core.sql.Insert;
 import com.github.johnsonmoon.fastorm.core.sql.Query;
-import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +23,7 @@ public class JdbcConnectorTest {
 
 	@Test
 	public void testInsert() {
-		String Acc_ID = RandomUtils.getRandomString(15);
+		String Acc_ID = "dawd1aw3d251a351d";
 		Insert insert = Insert.insertInto("accounts")
 				.fields("Acc_ID", "Acc_name", "Acc_pwd", "Acc_sex", "Acc_loc", "Acc_lvl",
 						"Acc_ryb", "Acc_shop", "Acc_atn", "Acc_atnd", "Acc_pub", "Acc_no", "Acc_name2", "Acc_tel", "Acc_addTime")

@@ -1,4 +1,4 @@
-package com.github.johnsonmoon.fastorm.core.util;
+package com.github.johnsonmoon.fastorm.mapper.util;
 
 import java.security.SecureRandom;
 
