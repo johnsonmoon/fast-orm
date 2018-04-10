@@ -1,5 +1,7 @@
 package com.github.johnsonmoon.fastorm.mapper;
 
+import com.github.johnsonmoon.fastorm.mapper.common.TableMetaInfo;
+
 import java.util.List;
 
 /**
@@ -8,6 +10,14 @@ import java.util.List;
  * Created by johnsonmoon at 2018/4/8 10:31.
  */
 public interface Mapping {
+	/**
+	 * Get table meta information by type information.
+	 *
+	 * @param clazz type
+	 * @return {@link TableMetaInfo}
+	 */
+	<T> TableMetaInfo getTableMetaInfo(Class<T> clazz);
+
 	/**
 	 * Generate create table sentence.
 	 *
@@ -49,5 +59,5 @@ public interface Mapping {
 	 * @param clazz object type
 	 * @return select sql sentence
 	 */
-	<T> T select(T t, Class<T> clazz);
+	<T> String select(T t, Class<T> clazz);
 }

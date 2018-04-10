@@ -81,4 +81,46 @@ public class AnnotationMapperTest {
 			System.out.println(JdbcConnector.getInstance().update(sql3));
 		}
 	}
+
+	@Test
+	public void testUpdate() {
+		Mapping mapping = new AnnotationMapping();
+		for (int i = 0; i < 10; i++) {
+			Student student = new Student();
+			student.setId(RandomUtils.getRandomString(20));
+			student.setName("johnsonmoon" + RandomUtils.getRandomNumberString(5));
+			student.setEmail(student.getName() + "@123.com");
+			student.setPhone("123123456");
+			student.setAddress(RandomUtils.getRandomString(50));
+			if (JdbcConnector.getInstance().update(mapping.insert(student, Student.class)) > 0) {
+				Student studentUp = new Student();
+				studentUp.setId(student.getId());
+				studentUp.setName("JohnsonMoon_" + RandomUtils.getRandomNumberString(2));
+				String updateSql = mapping.update(studentUp, Student.class);
+				System.out.println(updateSql);
+				System.out.println(JdbcConnector.getInstance().update(updateSql));
+			}
+		}
+	}
+
+	@Test
+	public void testSelect() {
+		Mapping mapping = new AnnotationMapping();
+		for (int i = 0; i < 10; i++) {
+			Student student = new Student();
+			student.setId(RandomUtils.getRandomString(20));
+			student.setName("johnson_moon_" + RandomUtils.getRandomNumberString(3));
+			student.setEmail(student.getName() + "@123.com");
+			student.setPhone("123123456");
+			student.setAddress(RandomUtils.getRandomString(50));
+			if (JdbcConnector.getInstance().update(mapping.insert(student, Student.class)) > 0) {
+				Student studentSelect = new Student();
+				studentSelect.setId(student.getId());
+				studentSelect.setName(student.getName());
+				String selectSql = mapping.select(studentSelect, Student.class);
+				System.out.println(selectSql);
+				System.out.println(JdbcConnector.getInstance().query(selectSql));
+			}
+		}
+	}
 }

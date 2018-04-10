@@ -3,7 +3,10 @@ package com.github.johnsonmoon.fastorm.mapper;
 import com.github.johnsonmoon.fastorm.core.annotation.Column;
 import com.github.johnsonmoon.fastorm.core.annotation.ForeignKey;
 import com.github.johnsonmoon.fastorm.core.annotation.Table;
+import com.github.johnsonmoon.fastorm.core.sql.Criteria;
 import com.github.johnsonmoon.fastorm.core.sql.Insert;
+import com.github.johnsonmoon.fastorm.core.sql.Query;
+import com.github.johnsonmoon.fastorm.core.sql.Update;
 import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
 import com.github.johnsonmoon.fastorm.mapper.common.ColumnMetaInfo;
 import com.github.johnsonmoon.fastorm.mapper.common.MapperException;
@@ -33,13 +36,10 @@ import java.util.Map;
 public class AnnotationMapping implements Mapping {
 	private static Map<String, TableMetaInfo> TABLE_META_INFO_CACHE = new HashMap<>();
 
-	/**
-	 * Get table meta info from class info
-	 *
-	 * @param clazz type info with annotations.
-	 * @return {@link TableMetaInfo}
-	 */
-	public static TableMetaInfo getTableMetaInfo(Class<?> clazz) {
+	@Override
+	public <T> TableMetaInfo getTableMetaInfo(Class<T> clazz) {
+		if (clazz == null)
+			throw new MapperException("Unsupported operation: parameter is null.");
 		if (!AnnotationUtils.hasAnnotationTable(clazz))
 			throw new MapperException(
 					String.format("Unsupported operation: clazz %s has no annotation @Table declared.", clazz.getName()));
@@ -88,10 +88,12 @@ public class AnnotationMapping implements Mapping {
 
 	@Override
 	public <T> String createTable(Class<T> clazz) {
+		if (clazz == null)
+			throw new MapperException("Unsupported operation: parameter is null.");
 		if (!AnnotationUtils.hasAnnotationTable(clazz))
 			throw new MapperException(
 					String.format("Unsupported operation: clazz %s has no annotation @Table declared.", clazz.getName()));
-		TableMetaInfo tableMetaInfo = getTableMetaInfo(clazz);
+		TableMetaInfo tableMetaInfo = this.getTableMetaInfo(clazz);
 		if (tableMetaInfo == null)
 			throw new MapperException(
 					String.format("Unsupported operation: can not generate table meta info from class %s.", clazz.getName()));
@@ -178,7 +180,9 @@ public class AnnotationMapping implements Mapping {
 
 	@Override
 	public <T> List<String> createIndex(Class<T> clazz) {
-		TableMetaInfo tableMetaInfo = getTableMetaInfo(clazz);
+		if (clazz == null)
+			throw new MapperException("Unsupported operation: parameter is null.");
+		TableMetaInfo tableMetaInfo = this.getTableMetaInfo(clazz);
 		if (tableMetaInfo == null)
 			throw new MapperException(
 					String.format("Unsupported operation: can not generate table meta info from class %s.", clazz.getName()));
@@ -195,7 +199,9 @@ public class AnnotationMapping implements Mapping {
 
 	@Override
 	public <T> String insert(T t, Class<T> clazz) {
-		TableMetaInfo tableMetaInfo = getTableMetaInfo(clazz);
+		if (t == null || clazz == null)
+			throw new MapperException("Unsupported operation: parameter is null.");
+		TableMetaInfo tableMetaInfo = this.getTableMetaInfo(clazz);
 		if (tableMetaInfo == null)
 			throw new MapperException(
 					String.format("Unsupported operation: can not generate table meta info from class %s.", clazz.getName()));
@@ -241,11 +247,115 @@ public class AnnotationMapping implements Mapping {
 
 	@Override
 	public <T> String update(T t, Class<T> clazz) {
+		if (t == null || clazz == null)
+			throw new MapperException("Unsupported operation: parameter is null.");
+		TableMetaInfo tableMetaInfo = this.getTableMetaInfo(clazz);
+		if (tableMetaInfo == null)
+			throw new MapperException(
+					String.format("Unsupported operation: can not generate table meta info from class %s.", clazz.getName()));
+		List<String> whereKeys = new ArrayList<>();
+		List<Object> whereValues = new ArrayList<>();
+		ColumnField idColumn = getIdColumn(tableMetaInfo.getColumnMetaInfoList());
+		List<ColumnField> primaryKeyColumnList = getPrimaryKeyColumns(tableMetaInfo.getColumnMetaInfoList());
+		if (idColumn == null && primaryKeyColumnList.isEmpty()) {
+			throw new MapperException(String.format(
+					"Unsupported operation: can not locate @Id field or @PrimaryKey fields from class %s.", clazz.getName()));
+		}
+		if (idColumn != null) {
+			whereKeys.add(StringUtils.getSureName(idColumn.columnName));
+			whereValues.add(checkNotNull(ReflectionUtils.getFieldValue(t, idColumn.fieldName)));
+		} else {
+			for (ColumnField columnField : primaryKeyColumnList) {
+				whereKeys.add(StringUtils.getSureName(columnField.columnName));
+				whereValues.add(checkNotNull(ReflectionUtils.getFieldValue(t, columnField.fieldName)));
+			}
+		}
+		List<String> updateKeys = new ArrayList<>();
+		List<Object> updateValues = new ArrayList<>();
+		for (ColumnMetaInfo columnMetaInfo : tableMetaInfo.getColumnMetaInfoList()) {
+			if (!columnMetaInfo.isIdColumn() && !columnMetaInfo.isPrimaryKey()) {
+				Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
+				if (value != null) {
+					updateKeys.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
+					updateValues.add(value);
+				}
+			}
+		}
+		if (updateKeys.isEmpty()) {
+			throw new MapperException("Unsupported operation: updating field value count is 0, no updating operated");
+		}
+		Criteria criteria = Criteria.where(whereKeys.get(0)).is(whereValues.get(0));
+		for (int w = 1; w < whereKeys.size(); w++) {
+			criteria.and(whereKeys.get(w)).is(whereValues.get(w));
+		}
+		Update update = Update.update(StringUtils.getSureName(tableMetaInfo.getTableName())).addWhere(criteria);
+		for (int u = 0; u < updateKeys.size(); u++) {
+			update.set(updateKeys.get(u), updateValues.get(u));
+		}
+		return update.getSql();
+	}
+
+	private Object checkNotNull(Object value) {
+		if (value == null)
+			throw new MapperException("Unsupported operation: @Id field or @PrimaryKey fields value must not be null.");
+		return value;
+	}
+
+	private ColumnField getIdColumn(List<ColumnMetaInfo> columnMetaInfoList) {
+		for (ColumnMetaInfo columnMetaInfo : columnMetaInfoList) {
+			if (columnMetaInfo.isIdColumn()) {
+				return new ColumnField(columnMetaInfo.getColumnName(), columnMetaInfo.getFieldName());
+			}
+		}
 		return null;
 	}
 
+	private List<ColumnField> getPrimaryKeyColumns(List<ColumnMetaInfo> columnMetaInfoList) {
+		List<ColumnField> names = new ArrayList<>();
+		for (ColumnMetaInfo columnMetaInfo : columnMetaInfoList) {
+			if (columnMetaInfo.isPrimaryKey()) {
+				names.add(new ColumnField(columnMetaInfo.getColumnName(), columnMetaInfo.getFieldName()));
+			}
+		}
+		return names;
+	}
+
+	private class ColumnField {
+		private String columnName;
+		private String fieldName;
+
+		private ColumnField(String columnName, String fieldName) {
+			this.columnName = columnName;
+			this.fieldName = fieldName;
+		}
+	}
+
 	@Override
-	public <T> T select(T t, Class<T> clazz) {
-		return null;
+	public <T> String select(T t, Class<T> clazz) {
+		if (t == null || clazz == null)
+			throw new MapperException("Unsupported operation: parameter is null.");
+		TableMetaInfo tableMetaInfo = this.getTableMetaInfo(clazz);
+		if (tableMetaInfo == null)
+			throw new MapperException(
+					String.format("Unsupported operation: can not generate table meta info from class %s.", clazz.getName()));
+		List<String> whereKeys = new ArrayList<>();
+		List<Object> whereValues = new ArrayList<>();
+		for (ColumnMetaInfo columnMetaInfo : tableMetaInfo.getColumnMetaInfoList()) {
+			Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
+			if (value != null) {
+				whereKeys.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
+				whereValues.add(value);
+			}
+		}
+		Query query = Query.selectAll().from(StringUtils.getSureName(tableMetaInfo.getTableName()));
+		if (whereKeys.isEmpty()) {
+			return query.getSql();
+		} else {
+			Criteria criteria = Criteria.where(whereKeys.get(0)).is(whereValues.get(0));
+			for (int w = 1; w < whereKeys.size(); w++) {
+				criteria.and(whereKeys.get(w)).is(whereValues.get(w));
+			}
+			return query.addWhere(criteria).getSql();
+		}
 	}
 }
