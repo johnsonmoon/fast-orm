@@ -92,21 +92,21 @@ public class JdbcConnector {
 	 * @param sql sql sentence
 	 * @return result set map list
 	 */
-	public List<Map<String, Object>> query(String sql) {
-		List<Map<String, Object>> resultMapList = new ArrayList<>();
+	public List<LinkedHashMap<String, Object>> query(String sql) {
+		List<LinkedHashMap<String, Object>> resultMapList = new ArrayList<>();
 		try {
 			connection = getConnection();
 			statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			resultSet = statement.executeQuery(sql);
 			int columnCount = resultSet.getMetaData().getColumnCount();
 			while (resultSet.next()) {
+				LinkedHashMap<String, Object> map = new LinkedHashMap<>();
 				for (int i = 1; i <= columnCount; i++) {
-					Map<String, Object> map = new LinkedHashMap<>();
 					String columnName = resultSet.getMetaData().getColumnName(i);
 					Object columnValue = resultSet.getObject(i);
 					map.put(columnName, columnValue);
-					resultMapList.add(map);
 				}
+				resultMapList.add(map);
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e.getMessage(), e);

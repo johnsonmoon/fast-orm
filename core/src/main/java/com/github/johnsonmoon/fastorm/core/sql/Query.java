@@ -301,6 +301,34 @@ public class Query {
 		return this;
 	}
 
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	public Criteria getCriteria() {
+		return criteria;
+	}
+
+	public void setCriteria(Criteria criteria) {
+		this.criteria = criteria;
+	}
+
+	public Order getOrder() {
+		return order;
+	}
+
+	public void setOrder(Order order) {
+		this.order = order;
+	}
+
+	public String getGroupBy() {
+		return groupBy;
+	}
+
+	public void setGroupBy(String groupBy) {
+		this.groupBy = groupBy;
+	}
+
 	@Override
 	public String toString() {
 		return "Query [sql=" + sql + ", criteria=" + criteria + ", order=" + order + ", groupBy=" + groupBy + "]";

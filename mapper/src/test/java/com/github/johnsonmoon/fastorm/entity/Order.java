@@ -54,4 +54,14 @@ public class Order {
 	public void setAddress(String address) {
 		this.address = address;
 	}
+
+	@Override
+	public String toString() {
+		return "Order{" +
+				"id='" + id + '\'' +
+				", phone='" + phone + '\'' +
+				", receiver='" + receiver + '\'' +
+				", address='" + address + '\'' +
+				'}';
+	}
 }

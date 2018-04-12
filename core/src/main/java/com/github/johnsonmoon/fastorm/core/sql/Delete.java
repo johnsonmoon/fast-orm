@@ -46,6 +46,18 @@ public class Delete {
 		return this;
 	}
 
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	public Criteria getCriteria() {
+		return criteria;
+	}
+
+	public void setCriteria(Criteria criteria) {
+		this.criteria = criteria;
+	}
+
 	@Override
 	public String toString() {
 		return "Delete [sql=" + sql + ", criteria=" + criteria + "]";

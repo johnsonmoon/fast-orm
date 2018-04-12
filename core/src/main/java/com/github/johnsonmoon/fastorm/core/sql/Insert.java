@@ -77,6 +77,10 @@ public class Insert {
 		return this;
 	}
 
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
 	@Override
 	public String toString() {
 		return "Insert [sql=" + sql + "]";

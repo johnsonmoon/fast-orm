@@ -369,6 +369,14 @@ public class Criteria {
 		return this;
 	}
 
+	public String getWhere() {
+		return where;
+	}
+
+	public void setWhere(String where) {
+		this.where = where;
+	}
+
 	@Override
 	public String toString() {
 		return "Criteria [where=" + where + "]";

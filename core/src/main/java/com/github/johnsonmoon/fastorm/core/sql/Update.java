@@ -84,6 +84,26 @@ public class Update {
 		return this;
 	}
 
+	public void setSql(String sql) {
+		this.sql = sql;
+	}
+
+	public Map<String, Object> getSet() {
+		return set;
+	}
+
+	public void setSet(Map<String, Object> set) {
+		this.set = set;
+	}
+
+	public Criteria getCriteria() {
+		return criteria;
+	}
+
+	public void setCriteria(Criteria criteria) {
+		this.criteria = criteria;
+	}
+
 	@Override
 	public String toString() {
 		return "Update [sql=" + sql + ", set=" + set + ", criteria=" + criteria + "]";

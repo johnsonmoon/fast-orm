@@ -1,5 +1,7 @@
 package com.github.johnsonmoon.fastorm.mapper.util;
 
+import java.util.Date;
+
 /**
  * Created by johnsonmoon at 2018/4/9 10:51.
  */
@@ -8,7 +10,8 @@ public class ValueUtils {
 	 * Parse string instance into given type object.
 	 * <p>
 	 * <pre>
-	 *     from String format   <--- Integer, Float, Byte, Double, Boolean, Character, Long, Short, String
+	 *     object itself   <--- Integer, Float, Byte, Double, Boolean, Character, Long, Short, String, Date
+	 *     json format string  <--- Other type
 	 * </pre>
 	 *
 	 * @param value String instance to be parsed
@@ -16,46 +19,67 @@ public class ValueUtils {
 	 * @param <T>   type
 	 * @return object parsed
 	 */
-	public static <T> Object upToObject(String value, Class<T> clazz) {
+	public static <T> Object parseValue(Object value, Class<T> clazz) {
 		if (value == null)
 			return null;
 
 		if (clazz == null)
 			return null;
 
-		if (clazz == Float.class) {
-			return Float.parseFloat(value);
+		if (clazz == Float.class
+				|| clazz == Byte.class
+				|| clazz == Double.class
+				|| clazz == Boolean.class
+				|| clazz == Long.class
+				|| clazz == Short.class
+				|| clazz == String.class) {
+			return value;
 		}
 
-		if (clazz == Byte.class) {
-			return Byte.parseByte(value);
-		}
-
-		if (clazz == Double.class) {
-			return Double.parseDouble(value);
-		}
-
-		if (clazz == Boolean.class) {
-			return Boolean.parseBoolean(value);
+		if (clazz == Date.class) {
+			return DateUtils.parseDateTime(String.valueOf(value));
 		}
 
 		if (clazz == Character.class) {
-			char[] chars = value.toCharArray();
+			char[] chars = String.valueOf(value).toCharArray();
 			if (chars.length == 0) {
 				return null;
 			}
 			return chars[0];
 		}
 
-		if (clazz == Long.class) {
-			return Long.parseLong(value);
-		}
+		return JsonUtils.JsonStr2Obj(String.valueOf(value), clazz);
+	}
 
-		if (clazz == Short.class) {
-			return Short.parseShort(value);
+	/**
+	 * Format object to String instance.
+	 * <p>
+	 * <pre>
+	 *     Integer, Float, Byte, Double, Boolean, Character, Long, Short ---> object
+	 *     String, Date ---> String instance
+	 *     Other type ---> json format String instance
+	 * </pre>
+	 *
+	 * @param object object to be format
+	 * @return formatted String instance
+	 */
+	public static Object formatValue(Object object) {
+		if (object == null)
+			return "";
+		if (object instanceof Integer
+				|| object instanceof Float
+				|| object instanceof Byte
+				|| object instanceof Double
+				|| object instanceof Boolean
+				|| object instanceof Character
+				|| object instanceof Long
+				|| object instanceof Short
+				|| object instanceof String)
+			return object;
+		if (object instanceof Date) {
+			return DateUtils.formatDateTime((Date) object);
 		}
-
-		return value;
+		return JsonUtils.obj2JsonStr(object);
 	}
 
 	/**
@@ -77,5 +101,27 @@ public class ValueUtils {
 			result = 4;
 		}
 		return result;
+	}
+
+	/**
+	 * Whether given value equals 0.
+	 *
+	 * @param value given value.
+	 * @return true means equals 0.
+	 */
+	public static boolean equalsZero(Object value) {
+		if (value instanceof Integer) {
+			return (Integer) value == 0;
+		}
+		if (value instanceof Float) {
+			return (Float) value == 0F;
+		}
+		if (value instanceof Short) {
+			return (Short) value == 0;
+		}
+		if (value instanceof Double) {
+			return (Double) value == 0;
+		}
+		return false;
 	}
 }

@@ -46,4 +46,13 @@ public class StudentOrder {
 	public void setOrderId(String orderId) {
 		this.orderId = orderId;
 	}
+
+	@Override
+	public String toString() {
+		return "StudentOrder{" +
+				"id='" + id + '\'' +
+				", studentId='" + studentId + '\'' +
+				", orderId='" + orderId + '\'' +
+				'}';
+	}
 }
