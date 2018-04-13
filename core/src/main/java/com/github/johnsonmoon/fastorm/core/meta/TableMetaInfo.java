@@ -1,4 +1,4 @@
-package com.github.johnsonmoon.fastorm.mapper.meta;
+package com.github.johnsonmoon.fastorm.core.meta;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.github.johnsonmoon.fastorm.mapper.meta;
+package com.github.johnsonmoon.fastorm.core.meta;
 
 /**
  * Created by johnsonmoon at 2018/4/8 14:07.

@@ -11,4 +11,15 @@ public class DeleteTest {
 		System.out.println(Delete.deleteFrom("student").getSql());
 		System.out.println(Delete.deleteFrom("student").addWhere(Criteria.where("name").is("Johnson")).getSql());
 	}
+
+	@Test
+	public void testDeleteFromOtherTable(){
+		Delete delete = new Delete();
+		delete.setDeleteFrom("abc").setCriteria(Criteria.where("name").is("Johnson"));
+		System.out.println(delete.getSql());
+
+		Delete delete1 = Delete.deleteFrom("test").setCriteria(Criteria.where("name").is("Johnson"));
+		delete1.setDeleteFrom("abc");
+		System.out.println(delete1.getSql());
+	}
 }

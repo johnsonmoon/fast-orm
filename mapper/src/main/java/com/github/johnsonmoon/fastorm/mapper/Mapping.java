@@ -5,7 +5,7 @@ import com.github.johnsonmoon.fastorm.core.sql.Delete;
 import com.github.johnsonmoon.fastorm.core.sql.Insert;
 import com.github.johnsonmoon.fastorm.core.sql.Query;
 import com.github.johnsonmoon.fastorm.core.sql.Update;
-import com.github.johnsonmoon.fastorm.mapper.meta.TableMetaInfo;
+import com.github.johnsonmoon.fastorm.core.meta.TableMetaInfo;
 
 import java.util.LinkedHashMap;
 import java.util.List;

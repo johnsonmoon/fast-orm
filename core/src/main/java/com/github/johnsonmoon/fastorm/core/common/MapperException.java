@@ -1,4 +1,4 @@
-package com.github.johnsonmoon.fastorm.mapper.common;
+package com.github.johnsonmoon.fastorm.core.common;
 
 import java.io.Serializable;
 

@@ -7,7 +7,7 @@ import com.github.johnsonmoon.fastorm.core.sql.Insert;
 import com.github.johnsonmoon.fastorm.core.sql.Query;
 import com.github.johnsonmoon.fastorm.core.sql.Update;
 import com.github.johnsonmoon.fastorm.entity.Car;
-import com.github.johnsonmoon.fastorm.mapper.util.RandomUtils;
+import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
 import com.github.johnsonmoon.fastorm.entity.Order;
 import com.github.johnsonmoon.fastorm.entity.Student;
 import com.github.johnsonmoon.fastorm.entity.StudentOrder;
@@ -29,6 +29,9 @@ public class AnnotationMapperTest {
 				"characterEncoding", "UTF-8",
 				"useSSL", "true",
 				"useUnicode", "true");
+
+//		JdbcConnector.createInstance("org.sqlite.JDBC",
+//				"jdbc:sqlite:D:\\sqlite3\\databases\\test.db");
 	}
 
 	@Test

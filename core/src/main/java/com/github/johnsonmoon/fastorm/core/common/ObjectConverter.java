@@ -1,9 +1,9 @@
-package com.github.johnsonmoon.fastorm.mapper.common;
+package com.github.johnsonmoon.fastorm.core.common;
 
-import com.github.johnsonmoon.fastorm.mapper.meta.ColumnMetaInfo;
-import com.github.johnsonmoon.fastorm.mapper.meta.TableMetaInfo;
-import com.github.johnsonmoon.fastorm.mapper.util.ReflectionUtils;
-import com.github.johnsonmoon.fastorm.mapper.util.ValueUtils;
+import com.github.johnsonmoon.fastorm.core.meta.ColumnMetaInfo;
+import com.github.johnsonmoon.fastorm.core.meta.TableMetaInfo;
+import com.github.johnsonmoon.fastorm.core.util.ReflectionUtils;
+import com.github.johnsonmoon.fastorm.core.util.ValueUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

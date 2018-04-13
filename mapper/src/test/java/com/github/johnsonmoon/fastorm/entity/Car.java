@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Created by johnsonmoon at 2018/4/12 16:35.
  */
-@Table(name = "car", settings = "ENGINE=InnoDB CHARSET=UTF8")
+@Table(name = "car"/*, settings = "ENGINE=InnoDB CHARSET=UTF8"*/)
 public class Car {
 	@Id
 	@PrimaryKey
@@ -22,7 +22,7 @@ public class Car {
 	@Column(name = "price", type = "integer")
 	private int price;
 
-	@Column(name = "create_date", type = "timestamp")
+	@Column(name = "create_date", type = "datetime")
 	private Date createDate;
 
 	@Column(name = "sequence_numbers", type = "varchar(1000)")

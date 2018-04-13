@@ -10,4 +10,9 @@ public class OrderByTest {
 	public void test() {
 		System.out.println(Order.orderBy("name", "phoneNumber").direction_DESC().getOrder());
 	}
+
+	@Test
+	public void testSingleOrderField(){
+		System.out.println(Order.orderBy("name").direction_DESC().getOrder());
+	}
 }

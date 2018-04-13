@@ -1,4 +1,4 @@
-package com.github.johnsonmoon.fastorm.mapper.util;
+package com.github.johnsonmoon.fastorm.core.util;
 
 import java.text.Format;
 import java.text.ParseException;
@@ -15,8 +15,7 @@ public class DateUtils {
 		if (date == null)
 			return null;
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT);
-		String dateFormat = sdf.format(date);
-		return dateFormat;
+		return sdf.format(date);
 	}
 
 	public static Date parseDateTime(String dateTime) {

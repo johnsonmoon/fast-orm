@@ -1,4 +1,4 @@
-package com.github.johnsonmoon.fastorm.mapper.util;
+package com.github.johnsonmoon.fastorm.core.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

@@ -5,7 +5,7 @@ import com.github.johnsonmoon.fastorm.core.annotation.*;
 /**
  * Created by johnsonmoon at 2018/4/8 17:45.
  */
-@Table(name = "student", settings = "ENGINE=InnoDB CHARSET=UTF8")
+@Table(name = "student"/*, settings = "ENGINE=InnoDB CHARSET=UTF8"*/)
 public class Student {
 	@Id
 	@PrimaryKey
