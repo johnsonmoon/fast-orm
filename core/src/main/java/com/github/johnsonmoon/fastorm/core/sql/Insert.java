@@ -122,6 +122,11 @@ public class Insert {
 
     @Override
     public String toString() {
-        return "Insert [sql=" + sql + "]";
+        return "Insert{" +
+                "insertInto='" + insertInto + '\'' +
+                ", fields=" + fields +
+                ", values=" + values +
+                ", sql='" + sql + '\'' +
+                '}';
     }
 }

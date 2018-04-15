@@ -31,8 +31,10 @@ public class Criteria {
      * @param condition 条件字段
      * @return {@link Criteria}
      */
-    public static Criteria where(String condition) {
-        condition = StringUtils.getSureName(condition);
+    public static Criteria where(Object condition) {
+        if (condition instanceof CharSequence) {
+            condition = StringUtils.getSureName(String.valueOf(condition));
+        }
         Criteria criteria = new Criteria();
         criteria.where += (condition + " ");
         return criteria;
@@ -58,8 +60,10 @@ public class Criteria {
      * @param condition 条件字段
      * @return {@link Criteria}
      */
-    public Criteria and(String condition) {
-        condition = StringUtils.getSureName(condition);
+    public Criteria and(Object condition) {
+        if (condition instanceof CharSequence) {
+            condition = StringUtils.getSureName(String.valueOf(condition));
+        }
         this.where += ("AND " + condition + " ");
         return this;
     }
@@ -83,8 +87,10 @@ public class Criteria {
      * @param condition 条件字段
      * @returnv {@link Criteria}
      */
-    public Criteria or(String condition) {
-        condition = StringUtils.getSureName(condition);
+    public Criteria or(Object condition) {
+        if (condition instanceof CharSequence) {
+            condition = StringUtils.getSureName(String.valueOf(condition));
+        }
         this.where += ("OR " + condition + " ");
         return this;
     }
@@ -99,6 +105,19 @@ public class Criteria {
         String complexStr = complex.getCriteria();
         complexStr = complexStr.substring(6);
         this.where += ("OR ( " + complexStr + " ) ");
+        return this;
+    }
+
+    /**
+     * Field is null;
+     *
+     * <pre>
+     *     example:
+     *     "where field1 is null"
+     * </pre>
+     */
+    public Criteria isNull() {
+        this.where += "IS NULL ";
         return this;
     }
 
@@ -120,7 +139,7 @@ public class Criteria {
 
     /**
      * 与其他字段匹配
-     * <p>
+     *
      * <pre>
      *  field可以是直接的字段名或者 某个表的字段名 table.field
      *
@@ -400,6 +419,8 @@ public class Criteria {
 
     @Override
     public String toString() {
-        return "Criteria [where=" + where + "]";
+        return "Criteria{" +
+                "where='" + where + '\'' +
+                '}';
     }
 }

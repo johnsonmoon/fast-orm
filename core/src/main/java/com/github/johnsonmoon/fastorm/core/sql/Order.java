@@ -67,6 +67,10 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Order [orderBy=" + orderBy + "]";
+        return "Order{" +
+                "DIRECTION_ASC='" + DIRECTION_ASC + '\'' +
+                ", DIRECTION_DESC='" + DIRECTION_DESC + '\'' +
+                ", orderBy='" + orderBy + '\'' +
+                '}';
     }
 }

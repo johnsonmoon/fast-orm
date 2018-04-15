@@ -75,6 +75,10 @@ public class Delete {
 
     @Override
     public String toString() {
-        return "Delete [sql=" + sql + ", criteria=" + criteria + "]";
+        return "Delete{" +
+                "deleteFrom='" + deleteFrom + '\'' +
+                ", sql='" + sql + '\'' +
+                ", criteria=" + criteria +
+                '}';
     }
 }

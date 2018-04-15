@@ -22,16 +22,16 @@ import java.util.*;
 public class AnnotationMapperTest {
 	@Before
 	public void setUp() {
-		JdbcConnector.createInstance("com.mysql.cj.jdbc.Driver",
-				"jdbc:mysql://127.0.0.1:3306/test?serverTimezone=UTC",
-				"user", "root",
-				"password", "Root_123",
-				"characterEncoding", "UTF-8",
-				"useSSL", "true",
-				"useUnicode", "true");
+//		JdbcConnector.createInstance("com.mysql.cj.jdbc.Driver",
+//				"jdbc:mysql://127.0.0.1:3306/test?serverTimezone=UTC",
+//				"user", "root",
+//				"password", "Root_123",
+//				"characterEncoding", "UTF-8",
+//				"useSSL", "true",
+//				"useUnicode", "true");
 
-//		JdbcConnector.createInstance("org.sqlite.JDBC",
-//				"jdbc:sqlite:D:\\sqlite3\\databases\\test.db");
+		JdbcConnector.createInstance("org.sqlite.JDBC",
+				"jdbc:sqlite:D:\\Programs\\sqlite\\database\\test.db");
 	}
 
 	@Test

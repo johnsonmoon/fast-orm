@@ -123,6 +123,11 @@ public class Update {
 
     @Override
     public String toString() {
-        return "Update [sql=" + sql + ", set=" + set + ", criteria=" + criteria + "]";
+        return "Update{" +
+                "sql='" + sql + '\'' +
+                ", updateTable='" + updateTable + '\'' +
+                ", set=" + set +
+                ", criteria=" + criteria +
+                '}';
     }
 }

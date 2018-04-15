@@ -1,5 +1,6 @@
 package com.github.johnsonmoon.fastorm.core.sql;
 
+import com.github.johnsonmoon.fastorm.core.common.MapperException;
 import com.github.johnsonmoon.fastorm.core.util.StringUtils;
 
 /**
@@ -8,17 +9,16 @@ import com.github.johnsonmoon.fastorm.core.util.StringUtils;
  * Created by xuyh at 2017/9/20 15:09.
  */
 public class Query {
-    private String select;
-    private String fromTable;
-    private String joinCondition;
-    private String joinOnCondition;
+    private String select = "";
+    private String fromTable = "";
+    private String joinCondition = "";
 
     private Criteria criteria;
     private Order order;
     private String groupBy;
 
     public Query() {
-            }
+    }
 
     /**
      * 获取最终的sql语句
@@ -26,12 +26,18 @@ public class Query {
      * @return sql sentence
      */
     public String getSql() {
-        // TODO: 2018/4/13
         String result = "SELECT ";
-        result += (select + " ");
+        if (select == null || select.isEmpty()) {
+            result += "* ";
+        } else {
+            result += (select + " ");
+        }
+        if (fromTable == null || fromTable.isEmpty())
+            throw new MapperException("Table must not be null.");
         result += (fromTable + " ");
-        result += (joinCondition + " ");
-        result += (joinOnCondition + " ");
+        if (joinCondition != null && !joinCondition.isEmpty()) {
+            result += (joinCondition + " ");
+        }
         if (criteria != null)
             result += (criteria.getCriteria() + " ");
         if (order != null)
@@ -111,7 +117,7 @@ public class Query {
 
     /**
      * 查询唯一不同的值
-     * <p>
+     *
      * <pre>
      *  参数fields可以是"field"格式,也可以是"field as alias格式"
      *
@@ -134,7 +140,7 @@ public class Query {
             fieldsStr.append(", ");
         }
         String field = fieldsStr.substring(0, fieldsStr.length() - 2);
-        query.select += ("DISTINCT " + field + " ");
+        query.select = "DISTINCT " + field + " ";
         return query;
     }
 
@@ -152,7 +158,7 @@ public class Query {
             fieldsStr.append(", ");
         }
         String field = fieldsStr.substring(0, fieldsStr.length() - 2);
-        this.select += ("DISTINCT " + field + " ");
+        this.select = "DISTINCT " + field + " ";
         return this;
     }
 
@@ -197,7 +203,7 @@ public class Query {
             tableStr.append(", ");
         }
         String table = tableStr.substring(0, tableStr.length() - 2);
-        this.fromTable += ("FROM " + table + " ");
+        this.fromTable = "FROM " + table + " ";
         return this;
     }
 
@@ -221,13 +227,13 @@ public class Query {
         if (table == null || table.isEmpty())
             return this;
         table = StringUtils.getSureName(table);
-        this.fromTable += ("FROM " + table + " ");
+        this.fromTable = "FROM " + table + " ";
         return this;
     }
 
     /**
      * INNER JOIN另外一张表
-     * <p>
+     *
      * <pre>
      *  参数table可以是"table"格式,也可以是"table as alias格式,也可以是"table alias格式"
      *
@@ -251,7 +257,7 @@ public class Query {
 
     /**
      * LEFT JOIN另外一张表
-     * <p>
+     *
      * <pre>
      *  参数table可以是"table"格式,也可以是"table as alias格式,也可以是"table alias格式"
      *
@@ -275,7 +281,7 @@ public class Query {
 
     /**
      * RIGHT JOIN另外一张表
-     * <p>
+     *
      * <pre>
      *  参数table可以是"table"格式,也可以是"table as alias格式,也可以是"table alias格式"
      *
@@ -299,7 +305,7 @@ public class Query {
 
     /**
      * FULL JOIN另外一张表
-     * <p>
+     *
      * <pre>
      *  参数table可以是"table"格式,也可以是"table as alias格式,也可以是"table alias格式"
      *
@@ -323,7 +329,7 @@ public class Query {
 
     /**
      * 联表之后on操作
-     * <p>
+     *
      * <pre>
      *  select * from table1 t1 left join table2 on t1.name = t2.name where t1.like = 0
      * </pre>
@@ -336,7 +342,7 @@ public class Query {
         if (fieldFormal == null || fieldFormal.isEmpty()
                 || fieldBehind == null || fieldBehind.isEmpty())
             return this;
-        this.joinOnCondition += ("ON " + StringUtils.getSureName(fieldFormal) + " = " + StringUtils.getSureName(fieldBehind) + " ");
+        this.joinCondition += ("ON " + StringUtils.getSureName(fieldFormal) + " = " + StringUtils.getSureName(fieldBehind) + " ");
         return this;
     }
 
@@ -397,4 +403,15 @@ public class Query {
         this.groupBy = groupBy;
     }
 
+    @Override
+    public String toString() {
+        return "Query{" +
+                "select='" + select + '\'' +
+                ", fromTable='" + fromTable + '\'' +
+                ", joinCondition='" + joinCondition + '\'' +
+                ", criteria=" + criteria +
+                ", order=" + order +
+                ", groupBy='" + groupBy + '\'' +
+                '}';
+    }
 }
