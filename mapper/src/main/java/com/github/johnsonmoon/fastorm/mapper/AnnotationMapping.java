@@ -153,31 +153,31 @@ public class AnnotationMapping implements Mapping {
                 if (value == null) {
                     value = RandomUtils.getRandomNumberString(ValueUtils.getLengthOfColumnType(columnMetaInfo.getType()));
                 }
-                columns.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
-                values.add(ValueUtils.formatValue(value));
+                columns.add(columnMetaInfo.getColumnName());
+                values.add(value);
             } else if (columnMetaInfo.isNotNull()) {
                 Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
                 if (value == null)
                     throw new MapperException(
                             String.format("Unsupported operation: field %s value must not be null.", columnMetaInfo.getFieldName()));
-                columns.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
-                values.add(ValueUtils.formatValue(value));
+                columns.add(columnMetaInfo.getColumnName());
+                values.add(value);
             } else if (!columnMetaInfo.isNotNull() && !columnMetaInfo.getDefaultValue().isEmpty()) {
                 Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
                 if (value == null)
                     value = ValueUtils.parseValue(columnMetaInfo.getDefaultValue(),
                             ReflectionUtils.getClassByName(columnMetaInfo.getFieldType()));
-                columns.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
-                values.add(ValueUtils.formatValue(value));
+                columns.add(columnMetaInfo.getColumnName());
+                values.add(value);
             } else {
                 Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
                 if (value == null)
                     continue;
-                columns.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
-                values.add(ValueUtils.formatValue(value));
+                columns.add(columnMetaInfo.getColumnName());
+                values.add(value);
             }
         }
-        return Insert.insertInto(StringUtils.getSureName(tableMetaInfo.getTableName()))
+        return Insert.insertInto(tableMetaInfo.getTableName())
                 .fields(CollectionUtils.strListToArray(columns))
                 .values(CollectionUtils.objListToArray(values));
     }
@@ -199,12 +199,12 @@ public class AnnotationMapping implements Mapping {
                     "Unsupported operation: can not locate @Id field or @PrimaryKey fields from class %s.", clazz.getName()));
         }
         if (idColumn != null) {
-            whereKeys.add(StringUtils.getSureName(idColumn.columnName));
-            whereValues.add(ValueUtils.formatValue(checkNotNull(ReflectionUtils.getFieldValue(t, idColumn.fieldName))));
+            whereKeys.add(idColumn.columnName);
+            whereValues.add(checkNotNull(ReflectionUtils.getFieldValue(t, idColumn.fieldName)));
         } else {
             for (ColumnField columnField : primaryKeyColumnList) {
-                whereKeys.add(StringUtils.getSureName(columnField.columnName));
-                whereValues.add(ValueUtils.formatValue(checkNotNull(ReflectionUtils.getFieldValue(t, columnField.fieldName))));
+                whereKeys.add(columnField.columnName);
+                whereValues.add(checkNotNull(ReflectionUtils.getFieldValue(t, columnField.fieldName)));
             }
         }
         List<String> updateKeys = new ArrayList<>();
@@ -213,8 +213,8 @@ public class AnnotationMapping implements Mapping {
             if (!columnMetaInfo.isIdColumn() && !columnMetaInfo.isPrimaryKey()) {
                 Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
                 if (value != null) {
-                    updateKeys.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
-                    updateValues.add(ValueUtils.formatValue(value));
+                    updateKeys.add(columnMetaInfo.getColumnName());
+                    updateValues.add(value);
                 }
             }
         }
@@ -225,7 +225,7 @@ public class AnnotationMapping implements Mapping {
         for (int w = 1; w < whereKeys.size(); w++) {
             criteria.and(whereKeys.get(w)).is(whereValues.get(w));
         }
-        Update update = Update.update(StringUtils.getSureName(tableMetaInfo.getTableName())).addWhere(criteria);
+        Update update = Update.update(tableMetaInfo.getTableName()).addWhere(criteria);
         for (int u = 0; u < updateKeys.size(); u++) {
             update.set(updateKeys.get(u), updateValues.get(u));
         }
@@ -280,11 +280,11 @@ public class AnnotationMapping implements Mapping {
         for (ColumnMetaInfo columnMetaInfo : tableMetaInfo.getColumnMetaInfoList()) {
             Object value = ReflectionUtils.getFieldValue(t, columnMetaInfo.getFieldName());
             if (value != null && !ValueUtils.equalsZero(value)) {
-                whereKeys.add(StringUtils.getSureName(columnMetaInfo.getColumnName()));
-                whereValues.add(ValueUtils.formatValue(value));
+                whereKeys.add(columnMetaInfo.getColumnName());
+                whereValues.add(value);
             }
         }
-        Query query = Query.selectAll().from(StringUtils.getSureName(tableMetaInfo.getTableName()));
+        Query query = Query.selectAll().from(tableMetaInfo.getTableName());
         if (whereKeys.isEmpty()) {
             return query;
         } else {
