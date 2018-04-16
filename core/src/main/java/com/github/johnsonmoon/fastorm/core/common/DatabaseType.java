@@ -147,4 +147,31 @@ public class DatabaseType {
 			return KEYWORD_AVOID_MYSQL_CHAR;
 		}
 	}
+
+	/**
+	 * Get table exists query sql sentence.
+	 *
+	 * @param tableName name of table
+	 */
+	public static String getTableExistsSqlSentence(String tableName) {
+		switch (CURRENT_DATABASE) {
+		case ORACLE:
+			return "select * from user_tables where table_name = '" + tableName + "'";
+		case DB2:
+			return "select * from syscat.tables where tabname = upper('" + tableName + "')";
+		case SQLSERVER:
+			return "select * from sys.tables where name = '" + tableName + "' and type = 'u'";
+		case MYSQL:
+			return "SHOW TABLES LIKE '" + tableName + "'";
+		case INFORMIX:
+			return "select * from systables where tabname ='" + tableName + "'and tabtype = 'T'";
+		case POSTGRESQL:
+			return "select * from information_schema.tables where table_schema='public' and table_type='BASE TABLE' and table_name='"
+					+ tableName + "'";
+		case SQLITE:
+			return "SELECT * FROM sqlite_master WHERE type='table' AND name='" + tableName + "'";
+		default:
+			return "SHOW TABLES LIKE '" + tableName + "'";
+		}
+	}
 }

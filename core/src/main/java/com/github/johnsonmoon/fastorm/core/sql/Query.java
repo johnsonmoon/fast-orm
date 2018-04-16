@@ -62,10 +62,10 @@ public class Query {
 
 	private String pageConditionLimitOffset() {
 		if (limit == null
-				|| limit.isEmpty()
-				|| offset == null
-				|| offset.isEmpty())
-			throw new MapperException("Limit and offset must not be null.");
+				|| limit.isEmpty())
+			throw new MapperException("Limit must not be null.");
+		if (offset == null || offset.isEmpty())
+			offset = "0";
 		return sqlWithoutPageCondition() + " LIMIT " + limit + " OFFSET " + offset;
 	}
 
