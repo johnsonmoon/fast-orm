@@ -1,5 +1,6 @@
 package com.github.johnsonmoon.fastorm.core.sql;
 
+import com.github.johnsonmoon.fastorm.core.common.DatabaseType;
 import com.github.johnsonmoon.fastorm.core.common.MapperException;
 import com.github.johnsonmoon.fastorm.core.util.StringUtils;
 
@@ -12,6 +13,8 @@ public class Query {
 	private String select = "";
 	private String fromTable = "";
 	private String joinCondition = "";
+	private String limit = "";
+	private String offset = "0";
 
 	private Criteria criteria;
 	private Order order;
@@ -26,6 +29,137 @@ public class Query {
 	 * @return sql sentence
 	 */
 	public String getSql() {
+		if (limit != null && !limit.isEmpty()
+				&& offset != null && !offset.isEmpty()) {
+			return sqlWithPageCondition();
+		} else {
+			return sqlWithoutPageCondition();
+		}
+	}
+
+	private String sqlWithPageCondition() {
+		switch (DatabaseType.CURRENT_DATABASE) {
+		case DatabaseType.SQLITE:
+			return pageConditionLimitOffset();
+		case DatabaseType.MYSQL:
+			return pageConditionLimitOffset();
+		case DatabaseType.POSTGRESQL:
+			return pageConditionLimitOffset();
+		case DatabaseType.INFORMIX:
+			return pageConditionSkipFirst();
+		case DatabaseType.ORACLE:
+			if (this.order == null)
+				return pageConditionRowNum();
+			return pageConditionRowNumFunction();
+		case DatabaseType.SQLSERVER:
+			return pageConditionRowNumFunction();
+		case DatabaseType.DB2:
+			return pageConditionRowNumFunction();
+		default:
+			return pageConditionLimitOffset();
+		}
+	}
+
+	private String pageConditionLimitOffset() {
+		if (limit == null
+				|| limit.isEmpty()
+				|| offset == null
+				|| offset.isEmpty())
+			throw new MapperException("Limit and offset must not be null.");
+		return sqlWithoutPageCondition() + " LIMIT " + limit + " OFFSET " + offset;
+	}
+
+	private String pageConditionSkipFirst() {
+		if (limit == null
+				|| limit.isEmpty()
+				|| offset == null
+				|| offset.isEmpty())
+			throw new MapperException("Limit and offset must not be null.");
+		String result = "SELECT ";
+		result += ("SKIP " + offset + " FIRST " + limit + " ");
+		if (select == null || select.isEmpty()) {
+			result += "* ";
+		} else {
+			result += (select + " ");
+		}
+		if (fromTable == null || fromTable.isEmpty())
+			throw new MapperException("Table must not be null.");
+		result += (fromTable + " ");
+		if (joinCondition != null && !joinCondition.isEmpty()) {
+			result += (joinCondition + " ");
+		}
+		if (criteria != null)
+			result += (criteria.getCriteria() + " ");
+		if (order != null)
+			result += (order.getOrder() + " ");
+		if (groupBy != null)
+			result += ("GROUP BY " + groupBy + " ");
+		return result.trim();
+	}
+
+	private String pageConditionRowNumFunction() {
+		if (limit == null
+				|| limit.isEmpty()
+				|| offset == null
+				|| offset.isEmpty())
+			throw new MapperException("Limit and offset must not be null.");
+		if (order == null)
+			throw new MapperException("Order must not be null.");
+		String result = "SELECT * FROM (SELECT row_number() over(" + order.getOrder() + ") AS rowNumber, ";
+		if (select == null || select.isEmpty()) {
+			result += "* ";
+		} else {
+			result += (select + " ");
+		}
+		if (fromTable == null || fromTable.isEmpty())
+			throw new MapperException("Table must not be null.");
+		result += (fromTable + " ");
+		if (joinCondition != null && !joinCondition.isEmpty()) {
+			result += (joinCondition + " ");
+		}
+		if (criteria != null)
+			result += (criteria.getCriteria() + " ");
+		if (order != null)
+			result += (order.getOrder() + " ");
+		if (groupBy != null)
+			result += ("GROUP BY " + groupBy);
+		Integer rowA = getOffsetInteger() + 1;
+		Integer rowB = getOffsetInteger() + 1 + getLimitInteger();
+		result += (") p WHERE p.rowNumber BETWEEN " + rowA + " AND " + rowB);
+		return result.trim();
+	}
+
+	private String pageConditionRowNum() {
+		if (limit == null
+				|| limit.isEmpty()
+				|| offset == null
+				|| offset.isEmpty())
+			throw new MapperException("Limit and offset must not be null.");
+		String result = "SELECT * FROM (SELECT ROWNUM AS rowNumber, ";
+		if (select == null || select.isEmpty()) {
+			result += "* ";
+		} else {
+			result += (select + " ");
+		}
+		if (fromTable == null || fromTable.isEmpty())
+			throw new MapperException("Table must not be null.");
+		result += (fromTable + " ");
+		if (joinCondition != null && !joinCondition.isEmpty()) {
+			result += (joinCondition + " ");
+		}
+		if (criteria != null)
+			result += (criteria.getCriteria() + " ");
+		if (order != null)
+			result += (order.getOrder() + " ");
+		if (groupBy != null)
+			result += ("GROUP BY " + groupBy);
+		Integer rowA = getOffsetInteger() + 1;
+		Integer rowB = getOffsetInteger() + 1 + getLimitInteger();
+		result += (") p WHERE p.rowNumber BETWEEN " + rowA + " AND " + rowB);
+		return result.trim();
+	}
+
+	private String sqlWithoutPageCondition() {
 		String result = "SELECT ";
 		if (select == null || select.isEmpty()) {
 			result += "* ";
@@ -59,6 +193,33 @@ public class Query {
 	}
 
 	/**
+	 * Select all columns and set table alias.
+	 * <pre>
+	 * 	example:
+	 * 	select t.* from table_car t where price > 150000
+	 * </pre>
+	 *
+	 * @return {@link Query}
+	 */
+	public static Query selectAll(String tableAlias) {
+		Query query = new Query();
+		query.select = tableAlias + ".*";
+		return query;
+	}
+
+	/**
+	 * Select all columns and set table alias.
+	 * <pre>
+	 * 	example:
+	 * 	select t.* from table_car t where price > 150000
+	 * </pre>
+	 */
+	public Query setSelectAll(String tableAlias) {
+		select = tableAlias + ".*";
+		return this;
+	}
+
+	/**
 	 * Set select *
 	 */
 	public Query setSelectAll() {
@@ -88,7 +249,7 @@ public class Query {
 		Query query = new Query();
 		StringBuilder fieldsStr = new StringBuilder();
 		for (String field : fields) {
-			fieldsStr.append(StringUtils.getSureName(field));
+			fieldsStr.append(field.contains("*") ? field : StringUtils.getSureName(field));
 			fieldsStr.append(", ");
 		}
 		String fieldsS = fieldsStr.substring(0, fieldsStr.length() - 2);
@@ -107,7 +268,7 @@ public class Query {
 		//这里的fields可以是单独fields,也可以是fields as alias
 		StringBuilder fieldsStr = new StringBuilder();
 		for (String field : fields) {
-			fieldsStr.append(StringUtils.getSureName(field));
+			fieldsStr.append(field.contains("*") ? field : StringUtils.getSureName(field));
 			fieldsStr.append(", ");
 		}
 		this.select = fieldsStr.substring(0, fieldsStr.length() - 2);
@@ -116,7 +277,7 @@ public class Query {
 
 	/**
 	 * 查询唯一不同的值
-	 *
+	 * <p>
 	 * <pre>
 	 *  参数fields可以是"field"格式,也可以是"field as alias格式"
 	 *
@@ -230,8 +391,28 @@ public class Query {
 	}
 
 	/**
-	 * INNER JOIN另外一张表
+	 * Select from another select sentence.
+	 * <pre>
+	 *     example:
+	 *     select * from (
+	 *      select id, price as pc, name from car
+	 *     ) p where p.pc between 0 and 10
+	 * </pre>
 	 *
+	 * @param query {@link Query}
+	 * @param alias alias for the child query condition
+	 */
+	public Query from(Query query, String alias) {
+		if (query == null || query.getSql() == null || query.getSql().isEmpty()) {
+			return this;
+		}
+		this.fromTable = "FROM ( " + query.getSql() + " ) " + alias + " ";
+		return this;
+	}
+
+	/**
+	 * INNER JOIN另外一张表
+	 * <p>
 	 * <pre>
 	 *  参数table可以是"table"格式,也可以是"table as alias格式,也可以是"table alias格式"
 	 *
@@ -255,7 +436,7 @@ public class Query {
 
 	/**
 	 * LEFT JOIN另外一张表
-	 *
+	 * <p>
 	 * <pre>
 	 *  参数table可以是"table"格式,也可以是"table as alias格式,也可以是"table alias格式"
 	 *
@@ -279,7 +460,7 @@ public class Query {
 
 	/**
 	 * RIGHT JOIN另外一张表
-	 *
+	 * <p>
 	 * <pre>
 	 *  参数table可以是"table"格式,也可以是"table as alias格式,也可以是"table alias格式"
 	 *
@@ -303,7 +484,7 @@ public class Query {
 
 	/**
 	 * FULL JOIN另外一张表
-	 *
+	 * <p>
 	 * <pre>
 	 *  参数table可以是"table"格式,也可以是"table as alias格式,也可以是"table alias格式"
 	 *
@@ -327,7 +508,7 @@ public class Query {
 
 	/**
 	 * 联表之后on操作
-	 *
+	 * <p>
 	 * <pre>
 	 *  select * from table1 t1 left join table2 on t1.name = t2.name where t1.like = 0
 	 * </pre>
@@ -378,6 +559,26 @@ public class Query {
 		return this;
 	}
 
+	/**
+	 * Add limit param.
+	 *
+	 * @param limit limit number
+	 */
+	public Query limit(int limit) {
+		this.limit = String.valueOf(limit);
+		return this;
+	}
+
+	/**
+	 * Add offset param.
+	 *
+	 * @param offset offset number
+	 */
+	public Query offset(int offset) {
+		this.offset = String.valueOf(offset);
+		return this;
+	}
+
 	public Criteria getCriteria() {
 		return criteria;
 	}
@@ -400,6 +601,30 @@ public class Query {
 
 	public void setGroupBy(String groupBy) {
 		this.groupBy = groupBy;
+	}
+
+	public void setLimit(String limit) {
+		this.limit = limit;
+	}
+
+	public void setOffset(String offset) {
+		this.offset = offset;
+	}
+
+	private int getLimitInteger() {
+		try {
+			return Integer.parseInt(limit);
+		} catch (Exception e) {
+			throw new MapperException(String.format("Error while parsing integer limit:[%s]", limit));
+		}
+	}
+
+	private int getOffsetInteger() {
+		try {
+			return Integer.parseInt(offset);
+		} catch (Exception e) {
+			throw new MapperException(String.format("Error while parsing integer offset:[%s]", offset));
+		}
 	}
 
 	@Override

@@ -109,7 +109,7 @@ public class Criteria {
 
 	/**
 	 * Field is null;
-	 *
+	 * <p>
 	 * <pre>
 	 *     example:
 	 *     "where field1 is null"
@@ -117,6 +117,19 @@ public class Criteria {
 	 */
 	public Criteria isNull() {
 		this.where += "IS NULL ";
+		return this;
+	}
+
+	/**
+	 * Field is not null;
+	 *
+	 * <pre>
+	 *     example:
+	 *     "where field1 is not null"
+	 * </pre>
+	 */
+	public Criteria isNotNull() {
+		this.where += "IS NOT NULL ";
 		return this;
 	}
 
@@ -138,7 +151,7 @@ public class Criteria {
 
 	/**
 	 * 与其他字段匹配
-	 *
+	 * <p>
 	 * <pre>
 	 *  field可以是直接的字段名或者 某个表的字段名 table.field
 	 *

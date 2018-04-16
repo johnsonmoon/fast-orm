@@ -22,16 +22,16 @@ import java.util.*;
 public class AnnotationMapperTest {
 	@Before
 	public void setUp() {
-//		JdbcConnector.createInstance("com.mysql.cj.jdbc.Driver",
-//				"jdbc:mysql://127.0.0.1:3306/test?serverTimezone=UTC",
-//				"user", "root",
-//				"password", "Root_123",
-//				"characterEncoding", "UTF-8",
-//				"useSSL", "true",
-//				"useUnicode", "true");
+		JdbcConnector.createInstance("com.mysql.cj.jdbc.Driver",
+				"jdbc:mysql://127.0.0.1:3306/test?serverTimezone=UTC",
+				"user", "root",
+				"password", "Root_123",
+				"characterEncoding", "UTF-8",
+				"useSSL", "true",
+				"useUnicode", "true");
 
-		JdbcConnector.createInstance("org.sqlite.JDBC",
-				"jdbc:sqlite:D:\\Programs\\sqlite\\database\\test.db");
+		//		JdbcConnector.createInstance("org.sqlite.JDBC",
+		//				"jdbc:sqlite:D:\\sqlite3\\databases\\test.db");
 	}
 
 	@Test
@@ -169,6 +169,28 @@ public class AnnotationMapperTest {
 		List<Student> students2 = mapping.convert(new QueryResult(JdbcConnector.getInstance().query(query.getSql())),
 				Student.class);
 		students2.forEach(System.out::println);
+	}
+
+	@Test
+	public void testInsertCar() {
+		Mapping mapping = new AnnotationMapping();
+		for (int i = 0; i < 10; i++) {
+			Car car = new Car();
+			car.setId(RandomUtils.getRandomString(20));
+			car.setPrice(15_0000);
+			car.setCreateDate(new Date());
+			car.setSequenceNumbers(Arrays.asList(RandomUtils.getRandomString(20), RandomUtils.getRandomString(20),
+					RandomUtils.getRandomString(20)));
+			Map<String, Object> props = new HashMap<>();
+			props.put("location", "China");
+			props.put("displacement", "1." + RandomUtils.getRandomNumberString(1));
+			props.put("color", "BLACK");
+			props.put("airbag_number", RandomUtils.getRandomNumberString(1));
+			car.setProperties(props);
+			String sql = mapping.insert(car, Car.class).getSql();
+			System.out.println(sql);
+			System.out.println(JdbcConnector.getInstance().update(sql));
+		}
 	}
 
 	@Test

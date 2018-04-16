@@ -13,10 +13,9 @@ public class DatabaseType {
 	public static final int DB2 = 1;
 	public static final int SQLSERVER = 2;
 	public static final int MYSQL = 3;
-	public static final int SYBASE = 4;
-	public static final int INFORMIX = 5;
-	public static final int POSTGRESQL = 6;
-	public static final int SQLITE = 7;
+	public static final int INFORMIX = 4;
+	public static final int POSTGRESQL = 5;
+	public static final int SQLITE = 6;
 
 	/**
 	 * Set current database type by given jdbc driver class name.
@@ -38,10 +37,6 @@ public class DatabaseType {
 		}
 		if (jdbcDriverClassName.contains("mysql")) {
 			CURRENT_DATABASE = MYSQL;
-			return;
-		}
-		if (jdbcDriverClassName.contains("sybase")) {
-			CURRENT_DATABASE = SYBASE;
 			return;
 		}
 		if (jdbcDriverClassName.contains("informix")) {
@@ -66,7 +61,6 @@ public class DatabaseType {
 	private static final String KEYWORD_AVOID_DB2_FORMAT_STR = "\"%s\"";
 	private static final String KEYWORD_AVOID_SQLSERVER_FORMAT_STR = "\"%s\"";
 	private static final String KEYWORD_AVOID_MYSQL_FORMAT_STR = "`%s`";
-	private static final String KEYWORD_AVOID_SYBASE_FORMAT_STR = "\"%s\"";
 	private static final String KEYWORD_AVOID_INFORMIX_FORMAT_STR = "\"%s\"";
 	private static final String KEYWORD_AVOID_POSTGRESQL_FORMAT_STR = "\"%s\"";
 	private static final String KEYWORD_AVOID_SQLITE_FORMAT_STR = "\"%s\"";
@@ -94,7 +88,6 @@ public class DatabaseType {
 	 * {@link DatabaseType#KEYWORD_AVOID_DB2_FORMAT_STR}
 	 * {@link DatabaseType#KEYWORD_AVOID_SQLSERVER_FORMAT_STR}
 	 * {@link DatabaseType#KEYWORD_AVOID_MYSQL_FORMAT_STR}
-	 * {@link DatabaseType#KEYWORD_AVOID_SYBASE_FORMAT_STR}
 	 * {@link DatabaseType#KEYWORD_AVOID_INFORMIX_FORMAT_STR}
 	 * {@link DatabaseType#KEYWORD_AVOID_POSTGRESQL_FORMAT_STR}
 	 * {@link DatabaseType#KEYWORD_AVOID_SQLITE_FORMAT_STR}
@@ -110,8 +103,6 @@ public class DatabaseType {
 			return KEYWORD_AVOID_SQLSERVER_FORMAT_STR;
 		case MYSQL:
 			return KEYWORD_AVOID_MYSQL_FORMAT_STR;
-		case SYBASE:
-			return KEYWORD_AVOID_SYBASE_FORMAT_STR;
 		case INFORMIX:
 			return KEYWORD_AVOID_INFORMIX_FORMAT_STR;
 		case POSTGRESQL:
@@ -132,7 +123,6 @@ public class DatabaseType {
 	 *     {@link DatabaseType#KEYWORD_AVOID_DB2_CHAR}
 	 *     {@link DatabaseType#KEYWORD_AVOID_SQLITE_CHAR}
 	 *     {@link DatabaseType#KEYWORD_AVOID_MYSQL_CHAR}
-	 *     {@link DatabaseType#KEYWORD_AVOID_SYBASE_CHAR}
 	 *     {@link DatabaseType#KEYWORD_AVOID_INFORMIX_CHAR}
 	 *     {@link DatabaseType#KEYWORD_AVOID_POSTGRESQL_CHAR}
 	 *     {@link DatabaseType#KEYWORD_AVOID_SQLITE_CHAR}
@@ -147,8 +137,6 @@ public class DatabaseType {
 		case SQLSERVER:
 			return KEYWORD_AVOID_SQLSERVER_CHAR;
 		case MYSQL:
-			return KEYWORD_AVOID_MYSQL_CHAR;
-		case SYBASE:
 			return KEYWORD_AVOID_SYBASE_CHAR;
 		case INFORMIX:
 			return KEYWORD_AVOID_INFORMIX_CHAR;
