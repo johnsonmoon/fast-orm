@@ -55,27 +55,26 @@ public class DatabaseType {
 	/**
 	 * Avoid keyword conflict.
 	 * <p>
-	 * TODO modify oracle, db2, sqlserver, sybase, informix, postgresql
+	 * TODO test
 	 */
 	private static final String KEYWORD_AVOID_ORACLE_FORMAT_STR = "\"%s\"";
 	private static final String KEYWORD_AVOID_DB2_FORMAT_STR = "\"%s\"";
-	private static final String KEYWORD_AVOID_SQLSERVER_FORMAT_STR = "\"%s\"";
+	private static final String KEYWORD_AVOID_SQLSERVER_FORMAT_STR = "[%s]";
 	private static final String KEYWORD_AVOID_MYSQL_FORMAT_STR = "`%s`";
-	private static final String KEYWORD_AVOID_INFORMIX_FORMAT_STR = "\"%s\"";
+	private static final String KEYWORD_AVOID_INFORMIX_FORMAT_STR = "[%s]";
 	private static final String KEYWORD_AVOID_POSTGRESQL_FORMAT_STR = "\"%s\"";
 	private static final String KEYWORD_AVOID_SQLITE_FORMAT_STR = "\"%s\"";
 
 	/**
 	 * Avoid keyword Character.
 	 * <p>
-	 * TODO modify oracle, db2, sqlserver, sybase, informix, postgresql
+	 * TODO test
 	 */
 	private static final String KEYWORD_AVOID_ORACLE_CHAR = "\"";
 	private static final String KEYWORD_AVOID_DB2_CHAR = "\"";
-	private static final String KEYWORD_AVOID_SQLSERVER_CHAR = "\"";
+	private static final String KEYWORD_AVOID_SQLSERVER_CHAR = "[";
 	private static final String KEYWORD_AVOID_MYSQL_CHAR = "`";
-	private static final String KEYWORD_AVOID_SYBASE_CHAR = "\"";
-	private static final String KEYWORD_AVOID_INFORMIX_CHAR = "\"";
+	private static final String KEYWORD_AVOID_INFORMIX_CHAR = "[";
 	private static final String KEYWORD_AVOID_POSTGRESQL_CHAR = "\"";
 	private static final String KEYWORD_AVOID_SQLITE_CHAR = "\"";
 
@@ -137,7 +136,7 @@ public class DatabaseType {
 		case SQLSERVER:
 			return KEYWORD_AVOID_SQLSERVER_CHAR;
 		case MYSQL:
-			return KEYWORD_AVOID_SYBASE_CHAR;
+			return KEYWORD_AVOID_MYSQL_CHAR;
 		case INFORMIX:
 			return KEYWORD_AVOID_INFORMIX_CHAR;
 		case POSTGRESQL:
