@@ -1,5 +1,6 @@
 package com.github.johnsonmoon.fastorm;
 
+import com.github.johnsonmoon.fastorm.core.sql.Delete;
 import com.github.johnsonmoon.fastorm.core.sql.Insert;
 import com.github.johnsonmoon.fastorm.core.sql.Query;
 import com.github.johnsonmoon.fastorm.core.sql.Update;
@@ -321,22 +322,22 @@ public interface OrmOperations {
 	 * Insert data by the object list into
 	 * the table name based on the provided entity class.
 	 *
-	 * @param t           entity object instance
+	 * @param tList           entity object instance
 	 * @param entityClass class that determines the table name
 	 * @return affected rows
 	 */
-	<T> int insert(List<T> t, Class<T> entityClass);
+	<T> int insert(List<T> tList, Class<T> entityClass);
 
 	/**
 	 * Insert data by the object list into
 	 * the table name ${tableName}.
 	 *
-	 * @param t           entity object instance
+	 * @param tList           entity object instance
 	 * @param entityClass class that determines the table structure
 	 * @param tableName   name of the table
 	 * @return affected rows
 	 */
-	<T> int insert(List<T> t, Class<T> entityClass, String tableName);
+	<T> int insert(List<T> tList, Class<T> entityClass, String tableName);
 
 	/**
 	 * Update multi by update object.
@@ -399,18 +400,18 @@ public interface OrmOperations {
 	/**
 	 * Delete multi by query object.
 	 *
-	 * @param query {@link Query}
+	 * @param delete {@link Delete}
 	 * @return affected rows
 	 */
-	int delete(Query query);
+	int delete(Delete delete);
 
 	/**
 	 * Delete first by query object.
 	 *
-	 * @param query {@link Query}
+	 * @param delete {@link Delete}
 	 * @return affected rows
 	 */
-	int deleteFirst(Query query);
+	int deleteFirst(Delete delete);
 
 	/**
 	 * Delete multi by ${t} object condition from

@@ -101,6 +101,29 @@ public class QueryResult implements Iterable<LinkedHashMap<String, Object>> {
 	}
 
 	/**
+	 * Get column name at row ${row} column ${column}
+	 *
+	 * @param row    row number, begin from 0.
+	 * @param column column number, begin from 0.
+	 * @return data object, or null if not exist.
+	 */
+	public String getColumnName(int row, int column) {
+		if (count() > row) {
+			if (resultMapList.get(row).size() > column) {
+				int index = 0;
+				for (Map.Entry<String, Object> entry : resultMapList.get(row).entrySet()) {
+					if (index == column) {
+						return entry.getKey();
+					}
+					index++;
+				}
+			}
+			return null;
+		}
+		return null;
+	}
+
+	/**
 	 * Get result map list.
 	 */
 	public List<LinkedHashMap<String, Object>> getResultMapList() {

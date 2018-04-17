@@ -1,7 +1,11 @@
 package com.github.johnsonmoon.fastorm.core.common;
 
+import com.github.johnsonmoon.fastorm.core.util.DateUtils;
+
 import java.sql.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by johnsonmoon at 2018/3/30 17:45.
@@ -82,10 +86,48 @@ public class JdbcConnector {
 	private Properties connectionProperties = new Properties();
 	private String databaseUrl = "jdbc:mysql://127.0.0.1:3306/test/serverTimezone=UTC";
 	private Connection connection;
-	private Statement statement;
+	private PreparedStatement statement;
 	private ResultSet resultSet;
 
 	private JdbcConnector() {
+	}
+
+	private static final Pattern DATETIME_PATTERN = Pattern.compile(
+			"'?[1-9]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\\s+(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d'?");
+
+	/**
+	 * To parse date into a correct format with correct time zone, it is necessary to
+	 * process sql sentence which contains 'yyyy-MM-dd HH:mm:ss' or yyyy-MM-dd HH:mm:ss
+	 * strings.
+	 * <p/>
+	 * replace 'yyyy-MM-dd HH:mm:ss' or yyyy-MM-dd HH:mm:ss by a placeholder '?',
+	 * using {@link java.sql.PreparedStatement#setTimestamp(int, Timestamp)} to
+	 * set correct value of datetime.
+	 */
+	private PreparedStatement processSqlDateTimeSentence(Connection connection, String sql) throws Exception {
+		PreparedStatement preparedStatement;
+		//process date type --> timestamp
+		Matcher matcher = DATETIME_PATTERN.matcher(sql);
+		List<String> dateParams = new ArrayList<>();
+		while (matcher.find()) {
+			String group = matcher.group();
+			dateParams.add(group);
+		}
+		if (!dateParams.isEmpty()) {
+			for (String param : dateParams) {
+				sql = sql.replaceFirst(param, "?");
+			}
+		}
+		preparedStatement = connection.prepareStatement(sql);
+		for (int i = 1; i <= dateParams.size(); i++) {
+			String dateStr = dateParams.get(i - 1);
+			if (dateStr.contains("'")) {
+				dateStr = dateStr.replace("'", "");
+			}
+			long time = DateUtils.parseDateTime(dateStr).getTime();
+			preparedStatement.setTimestamp(i, new Timestamp(time));
+		}
+		return preparedStatement;
 	}
 
 	/**
@@ -98,8 +140,8 @@ public class JdbcConnector {
 		List<LinkedHashMap<String, Object>> resultMapList = new ArrayList<>();
 		try {
 			connection = getConnection();
-			statement = connection.createStatement();
-			resultSet = statement.executeQuery(sql);
+			statement = processSqlDateTimeSentence(connection, sql);
+			resultSet = statement.executeQuery();
 			int columnCount = resultSet.getMetaData().getColumnCount();
 			while (resultSet.next()) {
 				LinkedHashMap<String, Object> map = new LinkedHashMap<>();
@@ -110,7 +152,7 @@ public class JdbcConnector {
 				}
 				resultMapList.add(map);
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
 		} finally {
 			close();
@@ -128,8 +170,8 @@ public class JdbcConnector {
 		int result;
 		try {
 			connection = getConnection();
-			statement = connection.createStatement();
-			result = statement.executeUpdate(sql);
+			statement = processSqlDateTimeSentence(connection, sql);
+			result = statement.executeUpdate();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
 		} finally {
@@ -147,8 +189,8 @@ public class JdbcConnector {
 	public boolean execute(String sql) {
 		try {
 			connection = getConnection();
-			statement = connection.createStatement();
-			return statement.execute(sql);
+			statement = processSqlDateTimeSentence(connection, sql);
+			return statement.execute();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
 		} finally {

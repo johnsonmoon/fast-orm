@@ -121,6 +121,10 @@ public class Update {
 		this.criteria = criteria;
 	}
 
+	public String getUpdateTable() {
+		return updateTable;
+	}
+
 	@Override
 	public String toString() {
 		return "Update{" +

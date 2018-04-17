@@ -73,6 +73,10 @@ public class Delete {
 		return this;
 	}
 
+	public String getDeleteFrom() {
+		return deleteFrom;
+	}
+
 	@Override
 	public String toString() {
 		return "Delete{" +

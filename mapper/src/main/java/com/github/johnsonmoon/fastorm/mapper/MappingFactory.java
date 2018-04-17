@@ -3,7 +3,7 @@ package com.github.johnsonmoon.fastorm.mapper;
 /**
  * Created by johnsonmoon at 2018/4/16 17:01.
  */
-public class MappingFactory {
+public abstract class MappingFactory {
 	/**
 	 * Get mapping with declared class clazz.
 	 *

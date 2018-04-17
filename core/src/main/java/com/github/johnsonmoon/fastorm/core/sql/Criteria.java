@@ -150,6 +150,22 @@ public class Criteria {
 	}
 
 	/**
+	 * Is not equal.
+	 *
+	 * @param value value
+	 * @return {@link Criteria}
+	 */
+	public Criteria isNot(Object value) {
+		value = ValueUtils.formatValue(value);
+		if (value instanceof CharSequence) {
+			this.where += ("<> '" + value + "' ");
+		} else {
+			this.where += ("<> " + String.valueOf(value) + " ");
+		}
+		return this;
+	}
+
+	/**
 	 * 与其他字段匹配
 	 * <p>
 	 * <pre>
