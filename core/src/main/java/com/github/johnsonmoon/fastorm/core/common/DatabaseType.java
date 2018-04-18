@@ -174,4 +174,69 @@ public class DatabaseType {
 			return "SHOW TABLES LIKE '" + tableName + "'";
 		}
 	}
+
+	/**
+	 * Get drop table sql sentence.
+	 *
+	 * @param tableName name of table to be drop
+	 */
+	public static String getDropTableSqlSentence(String tableName) {
+		return "DROP TABLE " + String.format(getKeywordAvoidFormatStr(), tableName);
+	}
+
+	/**
+	 * Get drop index sql sentence.
+	 *
+	 * @param tableName name of table
+	 * @param indexName name of index to be drop
+	 */
+	public static String getDropIndexSqlSentence(String tableName, String indexName) {
+		// TODO: 2018/4/18
+		switch (CURRENT_DATABASE) {
+		case SQLSERVER:
+			return "DROP INDEX " + String.format(getKeywordAvoidFormatStr(), tableName) + "." + indexName;
+		case DB2:
+			return "DROP INDEX " + indexName;
+		case ORACLE:
+			return "DROP INDEX " + indexName;
+		case MYSQL:
+			return "ALTER TABLE " + String.format(getKeywordAvoidFormatStr(), tableName) + " DROP INDEX " + indexName;
+		case SQLITE:
+			return "DROP INDEX IF EXISTS " + String.format(getKeywordAvoidFormatStr(), tableName) + "." + indexName;
+		case POSTGRESQL:
+			return "DROP INDEX IF EXISTS " + indexName;
+		case INFORMIX:
+			return "DROP INDEX " + indexName;
+		default:
+			return "ALTER TABLE " + String.format(getKeywordAvoidFormatStr(), tableName) + " DROP INDEX " + indexName;
+		}
+	}
+
+	/**
+	 * Get show indexes sql sentence.
+	 *
+	 * @param tableName name of table
+	 */
+	public static String getShowIndexesSqlSentence(String tableName) {
+		// TODO: 2018/4/18
+		switch (CURRENT_DATABASE) {
+		case SQLSERVER:
+			return "SELECT * FROM sys.sysindexes WHERE id=object_id('" + tableName + "')";
+		case DB2:
+			return "select *  from SYSCAT.INDEXES  where TABNAME='" + tableName + "'";
+		case ORACLE:
+			return "select * from user_indexes where table_name=upper('" + tableName + "'); ";
+		case MYSQL:
+			return "show index from " + String.format(getKeywordAvoidFormatStr(), tableName);
+		case SQLITE:
+			return "select * from sqlite_master where type='index' AND tbl_name='" + tableName + "'";
+		case POSTGRESQL:
+			return "select * from pg_indexes where tablename='" + tableName + "'";
+		case INFORMIX:
+			return "select * from sysconstraints where constrtype='R' and tabid=(select tabid from systables where tabname='"
+					+ tableName + "') ";
+		default:
+			return "show index from " + String.format(getKeywordAvoidFormatStr(), tableName);
+		}
+	}
 }

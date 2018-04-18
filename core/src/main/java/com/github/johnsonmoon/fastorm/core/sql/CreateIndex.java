@@ -13,6 +13,24 @@ import java.util.List;
  */
 public class CreateIndex {
 	/**
+	 * Generate index name list from given table meta information.
+	 *
+	 * @param tableMetaInfo meta information of table {@link TableMetaInfo}
+	 * @return index name list
+	 */
+	public static List<String> generateIndexNameList(TableMetaInfo tableMetaInfo) {
+		if (tableMetaInfo == null)
+			throw new MapperException("Unsupported operation: table meta information must not be null.");
+		List<String> indexNameList = new ArrayList<>();
+		for (ColumnMetaInfo columnMetaInfo : tableMetaInfo.getColumnMetaInfoList()) {
+			if (columnMetaInfo.isIndexedColumn()) {
+				indexNameList.add("index_" + columnMetaInfo.getColumnName());
+			}
+		}
+		return indexNameList;
+	}
+
+	/**
 	 * Generate create indexes sql sentence list by given table meta information.
 	 *
 	 * @param tableMetaInfo meta information of table {@link TableMetaInfo}

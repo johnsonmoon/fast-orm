@@ -15,6 +15,14 @@ import java.util.List;
  */
 public interface OrmOperations {
 	/**
+	 * Get table meta information.
+	 *
+	 * @param entityClass  class that determines the structure of the table
+	 * @return {@link TableMetaInfo}
+	 */
+	TableMetaInfo getTableMetaInfo(Class<?> entityClass);
+
+	/**
 	 * Check to see if a table with a name indicated by the entity class exists.
 	 *
 	 * @param entityClass class that determines the name of the table

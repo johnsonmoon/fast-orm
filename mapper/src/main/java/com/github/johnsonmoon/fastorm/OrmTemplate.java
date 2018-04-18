@@ -25,6 +25,11 @@ public class OrmTemplate implements OrmOperations {
 	}
 
 	@Override
+	public TableMetaInfo getTableMetaInfo(Class<?> entityClass) {
+		return MappingFactory.getMapping(entityClass).getTableMetaInfo(entityClass);
+	}
+
+	@Override
 	public boolean tableExists(Class<?> entityClass) {
 		TableMetaInfo tableMetaInfo = MappingFactory.getMapping(entityClass).getTableMetaInfo(entityClass);
 		QueryResult result = convert(
@@ -40,14 +45,20 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public boolean dropTable(Class<?> entityClass) {
-		// TODO: 2018/4/12
-		return false;
+		TableMetaInfo tableMetaInfo = MappingFactory.getMapping(entityClass).getTableMetaInfo(entityClass);
+		if (tableMetaInfo == null)
+			return false;
+		String tableName = tableMetaInfo.getTableName();
+		String sql = DatabaseType.getDropTableSqlSentence(tableName);
+		return !jdbcConnector.execute(sql);
 	}
 
 	@Override
 	public boolean dropTable(String tableName) {
-		// TODO: 2018/4/12
-		return false;
+		if (tableName == null || tableName.isEmpty())
+			return false;
+		String sql = DatabaseType.getDropTableSqlSentence(tableName);
+		return !jdbcConnector.execute(sql);
 	}
 
 	@Override
@@ -64,45 +75,74 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public QueryResult showIndexes(Class<?> entityClass) {
-		// TODO: 2018/4/12
-		return null;
+		TableMetaInfo tableMetaInfo = MappingFactory.getMapping(entityClass).getTableMetaInfo(entityClass);
+		String sql = DatabaseType.getShowIndexesSqlSentence(tableMetaInfo.getTableName());
+		return new QueryResult(jdbcConnector.query(sql));
 	}
 
 	@Override
 	public QueryResult showIndexes(String tableName) {
-		// TODO: 2018/4/12
-		return null;
+		String sql = DatabaseType.getShowIndexesSqlSentence(tableName);
+		return new QueryResult(jdbcConnector.query(sql));
 	}
 
 	@Override
 	public boolean dropIndexes(Class<?> entityClass) {
-		// TODO: 2018/4/12
-		return false;
+		TableMetaInfo tableMetaInfo = MappingFactory.getMapping(entityClass).getTableMetaInfo(entityClass);
+		if (tableMetaInfo == null)
+			return false;
+		List<String> indexNameList = CreateIndex.generateIndexNameList(tableMetaInfo);
+		if (indexNameList == null || indexNameList.isEmpty())
+			return false;
+		int aff = 0;
+		for (String indexName : indexNameList) {
+			String sql = DatabaseType.getDropIndexSqlSentence(tableMetaInfo.getTableName(), indexName);
+			if (!jdbcConnector.execute(sql))
+				aff++;
+		}
+		return aff > 0;
 	}
 
 	@Override
 	public boolean dropIndexes(TableMetaInfo tableMetaInfo) {
-		// TODO: 2018/4/12
-		return false;
+		if (tableMetaInfo == null)
+			return false;
+		List<String> indexNameList = CreateIndex.generateIndexNameList(tableMetaInfo);
+		if (indexNameList == null || indexNameList.isEmpty())
+			return false;
+		int aff = 0;
+		for (String indexName : indexNameList) {
+			String sql = DatabaseType.getDropIndexSqlSentence(tableMetaInfo.getTableName(), indexName);
+			if (!jdbcConnector.execute(sql))
+				aff++;
+		}
+		return aff > 0;
 	}
 
 	@Override
 	public boolean dropIndexes(String tableName, List<String> indexNames) {
-		// TODO: 2018/4/12
-		return false;
+		if (indexNames == null || indexNames.isEmpty())
+			return false;
+		int aff = 0;
+		for (String indexName : indexNames) {
+			String sql = DatabaseType.getDropIndexSqlSentence(tableName, indexName);
+			if (!jdbcConnector.execute(sql))
+				aff++;
+		}
+		return aff > 0;
 	}
 
 	@Override
 	public boolean dropIndex(String tableName, String indexName) {
-		// TODO: 2018/4/12
-		return false;
+		String sql = DatabaseType.getDropIndexSqlSentence(tableName, indexName);
+		return !jdbcConnector.execute(sql);
 	}
 
 	@Override
 	public boolean createIndexes(Class<?> entityClass) {
-		List<String> sqls = MappingFactory.getMapping(entityClass).createIndex(entityClass);
+		List<String> sqlList = MappingFactory.getMapping(entityClass).createIndex(entityClass);
 		boolean flag = true;
-		for (String sql : sqls) {
+		for (String sql : sqlList) {
 			flag = flag && !jdbcConnector.execute(sql);
 		}
 		return flag;
@@ -110,9 +150,9 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public boolean createIndexes(TableMetaInfo tableMetaInfo) {
-		List<String> sqls = CreateIndex.getSql(tableMetaInfo);
+		List<String> sqlList = CreateIndex.getSql(tableMetaInfo);
 		boolean flag = true;
-		for (String sql : sqls) {
+		for (String sql : sqlList) {
 			flag = flag && !jdbcConnector.execute(sql);
 		}
 		return flag;
@@ -120,9 +160,9 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public boolean createIndexes(String tableName, List<String> columnNames) {
-		List<String> sqls = CreateIndex.getSql(tableName, columnNames);
+		List<String> sqlList = CreateIndex.getSql(tableName, columnNames);
 		boolean flag = true;
-		for (String sql : sqls) {
+		for (String sql : sqlList) {
 			flag = flag && !jdbcConnector.execute(sql);
 		}
 		return flag;
@@ -147,8 +187,8 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> List<T> queryAll(Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return null;
+		Query query = Query.selectAll().from(tableName);
+		return MappingFactory.getMapping(entityClass).convert(jdbcConnector.query(query.getSql()), entityClass);
 	}
 
 	@Override
@@ -166,8 +206,10 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> T queryOne(T t, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return null;
+		Query query = MappingFactory.getMapping(entityClass).query(t, entityClass);
+		query.from(tableName);
+		List<T> tList = MappingFactory.getMapping(entityClass).convert(jdbcConnector.query(query.getSql()), entityClass);
+		return tList.isEmpty() ? null : tList.get(0);
 	}
 
 	@Override
@@ -184,8 +226,9 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> List<T> queryList(T t, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return null;
+		Query query = MappingFactory.getMapping(entityClass).query(t, entityClass);
+		query.from(tableName);
+		return MappingFactory.getMapping(entityClass).convert(jdbcConnector.query(query.getSql()), entityClass);
 	}
 
 	@Override
@@ -213,8 +256,16 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> T queryById(Object id, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return null;
+		TableMetaInfo tableMetaInfo = MappingFactory.getMapping(entityClass).getTableMetaInfo(entityClass);
+		ColumnMetaInfo idColumn = getIdColumnMetaInfo(tableMetaInfo);
+		if (idColumn == null)
+			throw new MapperException(
+					String.format("Unsupported operation: can not find id column(field) for class:[%s]", entityClass.getName()));
+		Query query = Query.selectAll()
+				.from(tableName)
+				.addWhere(Criteria.where(idColumn.getColumnName()).is(id));
+		List<T> tList = MappingFactory.getMapping(entityClass).convert(jdbcConnector.query(query.getSql()), entityClass);
+		return (tList == null || tList.isEmpty()) ? null : tList.get(0);
 	}
 
 	@Override
@@ -242,8 +293,14 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> long count(T t, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return 0;
+		Query query = MappingFactory.getMapping(entityClass).query(t, entityClass);
+		query.setSelect("COUNT(*)");
+		query.from(tableName);
+		String sql = query.getSql();
+		QueryResult queryResult = new QueryResult(jdbcConnector.query(sql));
+		if (queryResult.count() == 0)
+			return 0;
+		return Long.parseLong(String.valueOf(queryResult.getColumn(0, 0)));
 	}
 
 	@Override
@@ -262,8 +319,8 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> int insert(T t, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return 0;
+		String sql = MappingFactory.getMapping(entityClass).insert(t, entityClass).setInsertInto(tableName).getSql();
+		return jdbcConnector.update(sql);
 	}
 
 	@Override
@@ -280,8 +337,14 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> int insert(List<T> tList, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return 0;
+		if (tList == null)
+			return 0;
+		int aff = 0;
+		for (T t : tList) {
+			String sql = MappingFactory.getMapping(entityClass).insert(t, entityClass).setInsertInto(tableName).getSql();
+			aff += jdbcConnector.update(sql);
+		}
+		return aff;
 	}
 
 	@Override
@@ -322,8 +385,12 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> int update(T t, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return 0;
+		Update update = MappingFactory.getMapping(entityClass).update(t, entityClass);
+		if (update == null)
+			return 0;
+		update.setUpdateTable(tableName);
+		String sql = update.getSql();
+		return jdbcConnector.update(sql);
 	}
 
 	@Override
@@ -350,8 +417,24 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> int updateFirst(T t, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return 0;
+		Update update = MappingFactory.getMapping(entityClass).update(t, entityClass);
+		if (update == null)
+			return 0;
+		Criteria criteria = update.getCriteria();
+		Query query = Query.selectAll().from(tableName).addWhere(criteria);
+		QueryResult result = new QueryResult(jdbcConnector.query(query.getSql()));
+		if (result.count() == 0)
+			return 0;
+		Criteria criteriaFirst = Criteria.where(1).is(1);
+		for (Map.Entry<String, Object> entry : result.getRow(0).entrySet()) {
+			if (entry.getValue() == null)
+				continue;
+			criteriaFirst.and(entry.getKey()).is(entry.getValue());
+		}
+		update.setUpdateTable(tableName);
+		update.setCriteria(criteriaFirst);
+		String sql = update.getSql();
+		return jdbcConnector.update(sql);
 	}
 
 	@Override
@@ -393,8 +476,13 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> int delete(T t, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return 0;
+		Delete delete = MappingFactory.getMapping(entityClass).delete(t, entityClass);
+		if (delete == null) {
+			return 0;
+		}
+		delete.setDeleteFrom(tableName);
+		String sql = delete.getSql();
+		return jdbcConnector.update(sql);
 	}
 
 	@Override
@@ -422,8 +510,25 @@ public class OrmTemplate implements OrmOperations {
 
 	@Override
 	public <T> int deleteFirst(T t, Class<T> entityClass, String tableName) {
-		// TODO: 2018/4/12
-		return 0;
+		Delete delete = MappingFactory.getMapping(entityClass).delete(t, entityClass);
+		if (delete == null) {
+			return 0;
+		}
+		Criteria criteria = delete.getCriteria();
+		Query query = Query.selectAll().from(tableName).addWhere(criteria);
+		QueryResult result = new QueryResult(jdbcConnector.query(query.getSql()));
+		if (result.count() == 0)
+			return 0;
+		Criteria criteriaFirst = Criteria.where(1).is(1);
+		for (Map.Entry<String, Object> entry : result.getRow(0).entrySet()) {
+			if (entry.getValue() == null)
+				continue;
+			criteriaFirst.and(entry.getKey()).is(entry.getValue());
+		}
+		delete.setDeleteFrom(tableName);
+		delete.setCriteria(criteriaFirst);
+		String sql = delete.getSql();
+		return jdbcConnector.update(sql);
 	}
 
 	private QueryResult convert(List<LinkedHashMap<String, Object>> mapList) {
