@@ -11,6 +11,7 @@ import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
 import com.github.johnsonmoon.fastorm.entity.Order;
 import com.github.johnsonmoon.fastorm.entity.Student;
 import com.github.johnsonmoon.fastorm.entity.StudentOrder;
+import com.github.johnsonmoon.fastorm.mapper.impl.AnnotationMapping;
 import org.junit.Before;
 import org.junit.Test;
 
