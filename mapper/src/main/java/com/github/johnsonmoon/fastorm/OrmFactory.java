@@ -5,7 +5,7 @@ import com.github.johnsonmoon.fastorm.core.common.JdbcConnector;
 /**
  * Created by johnsonmoon at 2018/4/16 16:27.
  */
-public interface OrmFactory {
+public class OrmFactory {
 	/**
 	 * Init db factory.
 	 *
@@ -18,8 +18,14 @@ public interface OrmFactory {
 	 * </pre>
 	 * properties param count must be even number, split by "," character.
 	 */
-	void init(String jdbcDriverClassName, String databaseUrl,
-			String connectionProperties);
+	public void init(String jdbcDriverClassName, String databaseUrl,
+			String connectionProperties){
+		String[] array = connectionProperties.split(",");
+		for (int i = 0; i < array.length; i++) {
+			array[i] = array[i].trim();
+		}
+		JdbcConnector.createInstance(jdbcDriverClassName, databaseUrl, array);
+	}
 
 	/**
 	 * Init db factory.
@@ -37,13 +43,17 @@ public interface OrmFactory {
 	 * </pre>
 	 * properties param count must be even number.
 	 */
-	void init(String jdbcDriverClassName, String databaseUrl,
-			String... connectionProperties);
+	public void init(String jdbcDriverClassName, String databaseUrl,
+			String... connectionProperties){
+		JdbcConnector.createInstance(jdbcDriverClassName, databaseUrl, connectionProperties);
+	}
 
 	/**
 	 * Get jdbcConnector instance.
 	 *
 	 * @return {@link JdbcConnector}
 	 */
-	JdbcConnector getJdbcConnector();
+	public JdbcConnector getJdbcConnector(){
+		return JdbcConnector.getInstance();
+	}
 }

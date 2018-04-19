@@ -1,6 +1,6 @@
 package com.github.johnsonmoon.fastorm.mapper;
 
-import com.github.johnsonmoon.fastorm.QueryResult;
+import com.github.johnsonmoon.fastorm.core.common.QueryResult;
 import com.github.johnsonmoon.fastorm.core.annotation.Column;
 import com.github.johnsonmoon.fastorm.core.annotation.ForeignKey;
 import com.github.johnsonmoon.fastorm.core.annotation.Table;

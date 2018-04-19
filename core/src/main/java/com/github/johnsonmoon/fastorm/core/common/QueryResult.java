@@ -1,4 +1,4 @@
-package com.github.johnsonmoon.fastorm;
+package com.github.johnsonmoon.fastorm.core.common;
 
 import java.util.*;
 import java.util.function.Consumer;

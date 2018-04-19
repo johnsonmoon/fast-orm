@@ -37,6 +37,12 @@ public class ValueUtils {
 		}
 
 		if (clazz == Date.class) {
+			if (value instanceof Date) {
+				return value;
+			}
+			if (value instanceof Long) {
+				return DateUtils.parseDateTime((Long) value);
+			}
 			return DateUtils.parseDateTime(String.valueOf(value));
 		}
 

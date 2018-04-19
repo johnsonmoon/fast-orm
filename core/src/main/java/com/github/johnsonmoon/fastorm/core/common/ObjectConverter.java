@@ -35,9 +35,8 @@ public class ObjectConverter {
 				Object value = map.get(columnName);
 				if (value == null)
 					continue;
-				String strValue = String.valueOf(value);
 				ReflectionUtils.setFieldValue(t, fieldName,
-						ValueUtils.parseValue(strValue, ReflectionUtils.getClassByName(fieldJavaType)));
+						ValueUtils.parseValue(value, ReflectionUtils.getClassByName(fieldJavaType)));
 			}
 			tList.add(t);
 		}

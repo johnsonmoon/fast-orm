@@ -3,6 +3,7 @@ package com.github.johnsonmoon.fastorm;
 import com.github.johnsonmoon.fastorm.core.common.DatabaseType;
 import com.github.johnsonmoon.fastorm.core.common.JdbcConnector;
 import com.github.johnsonmoon.fastorm.core.common.MapperException;
+import com.github.johnsonmoon.fastorm.core.common.QueryResult;
 import com.github.johnsonmoon.fastorm.core.meta.ColumnMetaInfo;
 import com.github.johnsonmoon.fastorm.core.sql.*;
 import com.github.johnsonmoon.fastorm.core.meta.TableMetaInfo;

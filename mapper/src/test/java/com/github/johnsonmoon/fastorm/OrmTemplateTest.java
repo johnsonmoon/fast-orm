@@ -1,5 +1,6 @@
 package com.github.johnsonmoon.fastorm;
 
+import com.github.johnsonmoon.fastorm.core.common.QueryResult;
 import com.github.johnsonmoon.fastorm.core.meta.TableMetaInfo;
 import com.github.johnsonmoon.fastorm.core.sql.*;
 import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
@@ -22,12 +23,12 @@ public class OrmTemplateTest {
 
 	@Before
 	public void setUp() {
-		OrmFactory ormFactory = new OrmFactorySimpleImpl();
-		ormFactory.init("com.mysql.cj.jdbc.Driver",
-				"jdbc:mysql://127.0.0.1:3306/test?serverTimezone=UTC",
-				"user,root,password, Root_123, characterEncoding, UTF-8, useSSL, true, useUnicode, true");
-		//                ormFactory.init("org.sqlite.JDBC",
-		//                        "jdbc:sqlite:D:\\sqlite3\\databases\\test.db");
+		OrmFactory ormFactory = new OrmFactory();
+		//		ormFactory.init("com.mysql.cj.jdbc.Driver",
+		//				"jdbc:mysql://127.0.0.1:3306/test?serverTimezone=UTC",
+		//				"user,root,password, Root_123, characterEncoding, UTF-8, useSSL, true, useUnicode, true");
+		ormFactory.init("org.sqlite.JDBC",
+				"jdbc:sqlite:D:\\sqlite3\\databases\\test.db");
 		template = new OrmTemplate(ormFactory);
 
 		if (!template.tableExists(Student.class)) {

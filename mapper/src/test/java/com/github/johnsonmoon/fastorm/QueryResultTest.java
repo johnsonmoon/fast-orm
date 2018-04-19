@@ -1,5 +1,6 @@
 package com.github.johnsonmoon.fastorm;
 
+import com.github.johnsonmoon.fastorm.core.common.QueryResult;
 import org.junit.Before;
 import org.junit.Test;
 
