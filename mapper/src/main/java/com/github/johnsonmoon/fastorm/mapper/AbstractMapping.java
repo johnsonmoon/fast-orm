@@ -16,7 +16,6 @@ import com.github.johnsonmoon.fastorm.core.sql.Delete;
 import com.github.johnsonmoon.fastorm.core.sql.Insert;
 import com.github.johnsonmoon.fastorm.core.sql.Query;
 import com.github.johnsonmoon.fastorm.core.sql.Update;
-import com.github.johnsonmoon.fastorm.core.util.AnnotationUtils;
 import com.github.johnsonmoon.fastorm.core.util.CollectionUtils;
 import com.github.johnsonmoon.fastorm.core.util.RandomUtils;
 import com.github.johnsonmoon.fastorm.core.util.ReflectionUtils;
