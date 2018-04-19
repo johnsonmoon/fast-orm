@@ -59,7 +59,8 @@ public class CreateTable {
 		}
 		builder = new StringBuilder(builder.substring(0, builder.length() - 4));
 		builder.append("\r\n) ");
-		builder.append(tableMetaInfo.getTableSettings());
+		String tableSettings = tableMetaInfo.getTableSettings();
+		builder.append(tableSettings == null? "":tableSettings);
 		builder.append(";");
 		return builder.toString();
 	}

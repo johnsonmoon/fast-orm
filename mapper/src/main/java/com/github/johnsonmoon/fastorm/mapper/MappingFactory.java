@@ -1,5 +1,6 @@
 package com.github.johnsonmoon.fastorm.mapper;
 
+import com.github.johnsonmoon.fastorm.core.util.AnnotationUtils;
 import com.github.johnsonmoon.fastorm.mapper.impl.AnnotationMapping;
 import com.github.johnsonmoon.fastorm.mapper.impl.SimpleMapping;
 import com.github.johnsonmoon.fastorm.mapper.impl.XMLMapping;
@@ -34,7 +35,6 @@ public abstract class MappingFactory {
 	}
 
 	private static boolean annotationMappingConditionDeclared(Class<?> clazz) {
-		//TODO
-		return true;
+		return AnnotationUtils.hasAnnotationTable(clazz);
 	}
 }

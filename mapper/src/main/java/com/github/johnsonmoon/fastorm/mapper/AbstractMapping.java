@@ -57,9 +57,6 @@ public abstract class AbstractMapping implements Mapping {
 	public <T> String createTable(Class<T> clazz) {
 		if (clazz == null)
 			throw new MapperException("Unsupported operation: parameter is null.");
-		if (!AnnotationUtils.hasAnnotationTable(clazz))
-			throw new MapperException(
-					String.format("Unsupported operation: clazz %s has no annotation @Table declared.", clazz.getName()));
 		TableMetaInfo tableMetaInfo = this.getTableMetaInfo(clazz);
 		if (tableMetaInfo == null)
 			throw new MapperException(

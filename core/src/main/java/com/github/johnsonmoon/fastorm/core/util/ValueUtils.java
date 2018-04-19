@@ -29,10 +29,31 @@ public class ValueUtils {
 		if (clazz == Float.class
 				|| clazz == Byte.class
 				|| clazz == Double.class
-				|| clazz == Boolean.class
 				|| clazz == Long.class
 				|| clazz == Short.class
-				|| clazz == String.class) {
+				|| clazz == String.class
+				|| clazz == Integer.class) {
+			return value;
+		}
+
+		if (clazz == Boolean.class) {
+			if (value instanceof Boolean) {
+				return value;
+			}
+			if (value instanceof Integer) {
+				if ((Integer) value == 0) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+			if (value instanceof Short) {
+				if ((Short) value == 0) {
+					return false;
+				} else {
+					return true;
+				}
+			}
 			return value;
 		}
 

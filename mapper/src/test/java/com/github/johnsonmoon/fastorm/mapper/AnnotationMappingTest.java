@@ -20,7 +20,7 @@ import java.util.*;
 /**
  * Created by johnsonmoon at 2018/4/8 17:44.
  */
-public class AnnotationMapperTest {
+public class AnnotationMappingTest {
 	@Before
 	public void setUp() {
 		JdbcConnector.createInstance("com.mysql.cj.jdbc.Driver",

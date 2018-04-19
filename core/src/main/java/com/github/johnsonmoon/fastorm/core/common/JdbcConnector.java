@@ -92,8 +92,15 @@ public class JdbcConnector {
 	private JdbcConnector() {
 	}
 
-	private static final Pattern DATETIME_PATTERN = Pattern.compile(
+	/**
+	 * Substring pattern which sql sentence contains (DATETIME | true | false ) . Which is to be replaced.
+	 */
+	private static final Pattern REPLACEMENT_PATTERN = Pattern.compile(
+			"('?[1-9]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\\s+(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d'?)" +
+					"|true|false|TRUE|FALSE");
+	private static final Pattern REPLACEMENT_PATTERN_DATETIME = Pattern.compile(
 			"'?[1-9]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])\\s+(20|21|22|23|[0-1]\\d):[0-5]\\d:[0-5]\\d'?");
+	private static final Pattern REPLACEMENT_PATTERN_BOOLEAN = Pattern.compile("true|false|TRUE|FALSE");
 
 	/**
 	 * To parse date into a correct format with correct time zone, it is necessary to
@@ -103,29 +110,41 @@ public class JdbcConnector {
 	 * replace 'yyyy-MM-dd HH:mm:ss' or yyyy-MM-dd HH:mm:ss by a placeholder '?',
 	 * using {@link java.sql.PreparedStatement#setTimestamp(int, Timestamp)} to
 	 * set correct value of datetime.
+	 * <p/>
+	 * replace true/false into a correctly way, 
+	 * using {@link PreparedStatement#setBoolean(int, boolean)} to set correct value of boolean.
 	 */
-	private PreparedStatement processSqlDateTimeSentence(Connection connection, String sql) throws Exception {
+	private PreparedStatement processSqlSentence(Connection connection, String sql) throws Exception {
 		PreparedStatement preparedStatement;
 		//process date type --> timestamp
-		Matcher matcher = DATETIME_PATTERN.matcher(sql);
-		List<String> dateParams = new ArrayList<>();
+		Matcher matcher = REPLACEMENT_PATTERN.matcher(sql);
+		List<String> replaceParams = new ArrayList<>();
 		while (matcher.find()) {
 			String group = matcher.group();
-			dateParams.add(group);
+			replaceParams.add(group);
 		}
-		if (!dateParams.isEmpty()) {
-			for (String param : dateParams) {
+		if (!replaceParams.isEmpty()) {
+			for (String param : replaceParams) {
 				sql = sql.replaceFirst(param, "?");
 			}
 		}
 		preparedStatement = connection.prepareStatement(sql);
-		for (int i = 1; i <= dateParams.size(); i++) {
-			String dateStr = dateParams.get(i - 1);
-			if (dateStr.contains("'")) {
-				dateStr = dateStr.replace("'", "");
+		for (int i = 1; i <= replaceParams.size(); i++) {
+			String valueStr = replaceParams.get(i - 1);
+			if (valueStr.isEmpty()) {
+				continue;
 			}
-			long time = DateUtils.parseDateTime(dateStr).getTime();
-			preparedStatement.setTimestamp(i, new Timestamp(time));
+			if (valueStr.contains("'")) {
+				valueStr = valueStr.replace("'", "");
+			}
+			//Set data
+			if (REPLACEMENT_PATTERN_DATETIME.matcher(valueStr).matches()) {
+				long time = DateUtils.parseDateTime(valueStr).getTime();
+				preparedStatement.setTimestamp(i, new Timestamp(time));
+			} else if (REPLACEMENT_PATTERN_BOOLEAN.matcher(valueStr).matches()) {
+				boolean bool = Boolean.parseBoolean(valueStr);
+				preparedStatement.setBoolean(i, bool);
+			}
 		}
 		return preparedStatement;
 	}
@@ -140,7 +159,7 @@ public class JdbcConnector {
 		List<LinkedHashMap<String, Object>> resultMapList = new ArrayList<>();
 		try {
 			connection = getConnection();
-			statement = processSqlDateTimeSentence(connection, sql);
+			statement = processSqlSentence(connection, sql);
 			resultSet = statement.executeQuery();
 			int columnCount = resultSet.getMetaData().getColumnCount();
 			while (resultSet.next()) {
@@ -170,7 +189,7 @@ public class JdbcConnector {
 		int result;
 		try {
 			connection = getConnection();
-			statement = processSqlDateTimeSentence(connection, sql);
+			statement = processSqlSentence(connection, sql);
 			result = statement.executeUpdate();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);
@@ -189,7 +208,7 @@ public class JdbcConnector {
 	public boolean execute(String sql) {
 		try {
 			connection = getConnection();
-			statement = processSqlDateTimeSentence(connection, sql);
+			statement = processSqlSentence(connection, sql);
 			return statement.execute();
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage(), e);

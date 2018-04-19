@@ -17,7 +17,7 @@ public class ColumnMetaInfo {
 	private boolean idColumn = false;
 	private boolean indexedColumn = false;
 	private String columnName = "";//database column name
-	private String type = "";
+	private String type = "";//database data type [example: char(5), varchar(20), integer, datetime, timestamp, longint, etc.]
 	private boolean notNull = false;
 	private String defaultValue = "";
 	private boolean autoIncrement = false;
@@ -81,10 +81,52 @@ public class ColumnMetaInfo {
 		this.columnName = columnName;
 	}
 
+	/**
+	 * Get data type of database storage.
+	 * <p>
+	 * <pre>
+	 *     examples:
+	 *      "integer(size)"
+	 *      "int(size)"
+	 *      "smallint(size)"
+	 *      "tinyint(size)"
+	 *      "decimal(size,d)"
+	 *      "numeric(size,d)"
+	 *      "char(size)"
+	 *      "varchar(size)"
+	 *      "date(yyyy-MM-dd)"
+	 *      etc.
+	 *
+	 *     default:
+	 *      "varchar(50)"
+	 * </pre>
+	 *
+	 * @return String
+	 */
 	public String getType() {
 		return type;
 	}
 
+	/**
+	 * Set data type of database storage.
+	 * <p>
+	 * <pre>
+	 *     examples:
+	 *      "integer(size)"
+	 *      "int(size)"
+	 *      "smallint(size)"
+	 *      "tinyint(size)"
+	 *      "decimal(size,d)"
+	 *      "numeric(size,d)"
+	 *      "char(size)"
+	 *      "varchar(size)"
+	 *      "date(yyyy-MM-dd)"
+	 *      etc.
+	 *
+	 *     default:
+	 *      "varchar(50)"
+	 * </pre>
+	 */
 	public void setType(String type) {
 		this.type = type;
 	}
