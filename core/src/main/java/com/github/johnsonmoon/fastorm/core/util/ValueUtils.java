@@ -41,18 +41,10 @@ public class ValueUtils {
 				return value;
 			}
 			if (value instanceof Integer) {
-				if ((Integer) value == 0) {
-					return false;
-				} else {
-					return true;
-				}
+				return (Integer) value != 0;
 			}
 			if (value instanceof Short) {
-				if ((Short) value == 0) {
-					return false;
-				} else {
-					return true;
-				}
+				return (Short) value != 0;
 			}
 			return value;
 		}

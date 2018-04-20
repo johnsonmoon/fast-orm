@@ -62,22 +62,22 @@ public class SimpleMapping extends AbstractMapping {
 	private static String getColumnDatabaseStorageTypeByFieldType(Field field) {
 		// TODO: 2018/4/19 according to different databases, change storage types
 		String storageType;
-		Class<?> fieldType = field.getType();
-		if (fieldType.getName().contains("byte") || fieldType == Byte.class) {
+		Class<?> fieldType = ReflectionUtils.getClassByName(field.getType().getName());
+		if (fieldType == Byte.class) {
 			storageType = "char(1)";
-		} else if (fieldType.getName().contains("boolean") || fieldType == Boolean.class) {
+		} else if (fieldType == Boolean.class) {
 			storageType = "integer";
-		} else if (fieldType.getName().contains("short") || fieldType == Short.class) {
+		} else if (fieldType == Short.class) {
 			storageType = "integer";
-		} else if (fieldType.getName().contains("int") || fieldType == Integer.class) {
+		} else if (fieldType == Integer.class) {
 			storageType = "integer";
-		} else if (fieldType.getName().contains("long") || fieldType == Long.class) {
+		} else if (fieldType == Long.class) {
 			storageType = "bigint";
-		} else if (fieldType.getName().contains("float") || fieldType == Float.class) {
+		} else if (fieldType == Float.class) {
 			storageType = "float";
-		} else if (fieldType.getName().contains("double") || fieldType == Double.class) {
+		} else if (fieldType == Double.class) {
 			storageType = "float";
-		} else if (fieldType.getName().contains("char") || fieldType == Character.class) {
+		} else if (fieldType == Character.class) {
 			storageType = "char(1)";
 		} else if (fieldType == String.class) {
 			storageType = "varchar(255)";
